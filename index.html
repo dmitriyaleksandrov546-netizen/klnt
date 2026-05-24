@@ -1,555 +1,255 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>KLINT Russia — Никотиновые паучи из Швеции</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#0a0a0f;--surface:#111118;--surface2:#16161f;
+      --border:rgba(255,255,255,0.07);--text:#f0f0f5;--muted:#707088;
+      --radius:20px;--accent:#7effd4;
+    }
+    html{scroll-behavior:auto;}
+    body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;overflow-x:hidden;cursor:none;}
 
-    :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --surface2: #16161f;
-      --border: rgba(255,255,255,0.07);
-      --text: #f0f0f5;
-      --muted: #7070888;
-      --radius: 20px;
-      --accent: #7effd4;
-    }
+    /* CURSOR */
+    #cursor-dot{position:fixed;top:0;left:0;width:8px;height:8px;background:#fff;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,background .2s;}
+    #cursor-ring{position:fixed;top:0;left:0;width:36px;height:36px;border:1.5px solid rgba(255,255,255,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s;}
+    body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{width:56px;height:56px;border-color:var(--accent);}
 
-    html { scroll-behavior: auto; }
+    /* HERO */
+    #hero{position:relative;width:100%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;}
+    #hero-canvas{position:absolute;inset:0;z-index:0;}
+    .hero-content{position:relative;z-index:2;padding:0 24px;}
+    .hero-eyebrow{font-size:clamp(11px,1.4vw,14px);letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:24px;opacity:0;}
+    .hero-title{font-size:clamp(52px,10vw,130px);font-weight:800;line-height:.92;letter-spacing:-.03em;margin-bottom:28px;}
+    .hero-title span{display:inline-block;opacity:0;transform:translateY(60px);}
+    .hero-sub{font-size:clamp(15px,1.8vw,19px);color:var(--muted);max-width:480px;margin:0 auto 40px;opacity:0;line-height:1.6;}
+    .btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#0a0a0f;font-weight:700;font-size:15px;letter-spacing:.05em;padding:16px 36px;border-radius:50px;border:none;cursor:none;opacity:0;transform:translateY(20px);}
+    .btn-outline{display:inline-flex;align-items:center;gap:10px;background:transparent;color:var(--text);font-weight:600;font-size:15px;letter-spacing:.05em;padding:15px 34px;border-radius:50px;border:1px solid var(--border);cursor:none;opacity:0;transform:translateY(20px);margin-left:12px;}
+    .hero-stats{display:flex;gap:48px;justify-content:center;margin-top:56px;flex-wrap:wrap;}
+    .stat{text-align:center;opacity:0;}
+    .stat-num{font-size:clamp(28px,4vw,48px);font-weight:800;color:#fff;display:block;line-height:1;}
+    .stat-label{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-top:6px;display:block;}
+    .scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;}
+    .scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--accent),transparent);}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
-      overflow-x: hidden;
-    }
+    /* MARQUEE */
+    .marquee-wrap{overflow:hidden;padding:20px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);}
+    .marquee-track{display:flex;gap:0;white-space:nowrap;animation:marquee 22s linear infinite;}
+    .marquee-track span{font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:0 40px;}
+    .marquee-track span em{color:var(--accent);font-style:normal;}
+    @keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
-    /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+    /* ABOUT */
+    #about{padding:120px 0;max-width:1200px;margin:0 auto;padding-left:40px;padding-right:40px;}
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+    .about-tag{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+    .section-title{font-size:clamp(36px,5vw,64px);font-weight:800;line-height:1.05;letter-spacing:-.02em;}
+    .about-body{font-size:17px;line-height:1.75;color:var(--muted);margin-top:24px;}
+    .about-visual{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+    .about-visual-inner{font-size:80px;text-align:center;}
+    .features-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px;}
+    .feat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color .3s,transform .3s;}
+    .feat:hover{border-color:rgba(126,255,212,.25);transform:translateY(-4px);}
+    .feat-icon{font-size:28px;margin-bottom:12px;}
+    .feat-title{font-size:14px;font-weight:700;margin-bottom:6px;}
+    .feat-desc{font-size:13px;color:var(--muted);line-height:1.6;}
 
-    /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 20px 48px;
-      display: flex; align-items: center; justify-content: space-between;
-      background: linear-gradient(to bottom, rgba(10,10,15,0.95), transparent);
-      backdrop-filter: blur(0px);
-    }
-    .nav-logo {
-      font-size: 22px; font-weight: 800; letter-spacing: 4px;
-      color: var(--text); text-decoration: none;
-    }
-    .nav-links {
-      display: flex; gap: 36px; list-style: none;
-    }
-    .nav-links a {
-      color: rgba(255,255,255,0.6); text-decoration: none;
-      font-size: 13px; font-weight: 500; letter-spacing: 1px;
-      text-transform: uppercase; transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      background: var(--text); color: var(--bg);
-      padding: 10px 24px; border-radius: 100px;
-      font-size: 13px; font-weight: 700; text-decoration: none;
-      letter-spacing: 0.5px; transition: opacity 0.2s;
-    }
-    .nav-cta:hover { opacity: 0.85; }
+    /* HOW IT WORKS */
+    #how{padding:120px 40px;background:var(--surface);border-radius:40px;margin:0 20px;}
+    .how-inner{max-width:1200px;margin:0 auto;}
+    .how-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:60px;}
+    .step{position:relative;padding:36px 28px;background:var(--surface2);border-radius:20px;border:1px solid var(--border);}
+    .step-num{font-size:56px;font-weight:800;color:rgba(126,255,212,.12);line-height:1;margin-bottom:16px;}
+    .step-icon{font-size:32px;margin-bottom:14px;}
+    .step-title{font-size:16px;font-weight:700;margin-bottom:10px;}
+    .step-desc{font-size:14px;color:var(--muted);line-height:1.65;}
+    .step::before{content:'';position:absolute;top:50%;right:-13px;width:24px;height:24px;border-radius:50%;background:var(--surface);border:1px solid var(--border);transform:translateY(-50%);z-index:2;}
+    .step:last-child::before{display:none;}
 
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center;
-      position: relative; overflow: hidden;
-      padding: 120px 24px 80px;
+    /* CATALOG — HORIZONTAL SCROLL */
+    #catalog{padding:120px 0 0;overflow:hidden;}
+    .catalog-header{padding:0 40px;max-width:1200px;margin:0 auto 60px;}
+    .catalog-scroll-wrap{position:relative;}
+    .catalog-pin-wrap{overflow:hidden;}
+    .catalog-track{display:flex;gap:24px;padding:0 40px 80px;width:max-content;}
+    .flavor-card{
+      flex:0 0 320px;background:var(--surface);border:1px solid var(--border);border-radius:24px;
+      overflow:hidden;position:relative;transition:transform .4s cubic-bezier(.25,.46,.45,.94),box-shadow .4s;
+      cursor:none;
     }
-    .hero-bg {
-      position: absolute; inset: 0; z-index: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(30,30,60,0.9) 0%, var(--bg) 70%);
-    }
-    .hero-bg::after {
-      content: '';
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(circle at 20% 50%, rgba(126,255,212,0.04) 0%, transparent 50%),
-        radial-gradient(circle at 80% 30%, rgba(100,160,255,0.05) 0%, transparent 40%);
-    }
-    .hero-noise {
-      position: absolute; inset: 0; z-index: 1; opacity: 0.03;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    }
-    .hero-content { position: relative; z-index: 2; max-width: 900px; }
-    .hero-tag {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-      padding: 8px 18px; border-radius: 100px;
-      font-size: 12px; font-weight: 600; letter-spacing: 2px;
-      text-transform: uppercase; color: rgba(255,255,255,0.5);
-      margin-bottom: 32px; opacity: 0;
-    }
-    .hero-tag span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
-    .hero-title {
-      font-size: clamp(52px, 10vw, 120px);
-      font-weight: 800; line-height: 0.95;
-      letter-spacing: -2px;
-      margin-bottom: 8px; opacity: 0;
-    }
-    .hero-title em {
-      font-style: normal;
-      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.5) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-subtitle {
-      font-size: clamp(13px, 2vw, 16px);
-      color: rgba(255,255,255,0.45);
-      letter-spacing: 3px; text-transform: uppercase; font-weight: 500;
-      margin-bottom: 40px; opacity: 0;
-    }
-    .hero-desc {
-      font-size: clamp(15px, 2vw, 18px);
-      color: rgba(255,255,255,0.6); line-height: 1.7;
-      max-width: 560px; margin: 0 auto 48px; opacity: 0;
-    }
-    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; opacity: 0; }
-    .btn-primary {
-      background: var(--text); color: var(--bg);
-      padding: 16px 36px; border-radius: 100px;
-      font-size: 14px; font-weight: 700; letter-spacing: 0.5px;
-      text-decoration: none; transition: transform 0.2s, opacity 0.2s;
-    }
-    .btn-primary:hover { transform: scale(1.03); opacity: 0.9; }
-    .btn-secondary {
-      background: rgba(255,255,255,0.06); color: var(--text);
-      border: 1px solid var(--border);
-      padding: 16px 36px; border-radius: 100px;
-      font-size: 14px; font-weight: 600;
-      text-decoration: none; transition: background 0.2s;
-    }
-    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
-    .hero-scroll {
-      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-      z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
-      opacity: 0;
-    }
-    .hero-scroll span { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
-    .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent); }
+    .flavor-card:hover{transform:translateY(-8px) scale(1.02);}
+    .card-img-wrap{height:240px;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;}
+    .card-img-wrap img{height:100%;width:auto;object-fit:contain;position:relative;z-index:1;transition:transform .5s cubic-bezier(.25,.46,.45,.94);}
+    .flavor-card:hover .card-img-wrap img{transform:scale(1.08) translateY(-6px);}
+    .card-glow{position:absolute;inset:0;opacity:0;transition:opacity .4s;border-radius:24px;}
+    .flavor-card:hover .card-glow{opacity:.18;}
+    .card-body{padding:24px;}
+    .card-name{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px;}
+    .card-mg{font-size:13px;color:var(--muted);margin-bottom:16px;}
+    .card-price{font-size:22px;font-weight:800;color:var(--accent);margin-bottom:16px;}
+    .strength-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+    .strength-label{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;flex:0 0 70px;}
+    .dots{display:flex;gap:5px;}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:background .6s;}
+    .dot.filled{background:var(--accent);}
 
-    /* ── STATS BAR ── */
-    .stats {
-      background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-      padding: 32px 48px;
-      display: flex; justify-content: center; gap: 80px; flex-wrap: wrap;
-    }
-    .stat { text-align: center; }
-    .stat-num { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
-    .stat-label { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px; }
+    /* ADVANTAGES */
+    #advantages{padding:120px 40px;max-width:1200px;margin:0 auto;}
+    .adv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px;}
+    .adv-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px 32px;transition:transform .3s,border-color .3s;}
+    .adv-card:hover{transform:translateY(-6px);border-color:rgba(126,255,212,.2);}
+    .adv-icon{font-size:40px;margin-bottom:20px;}
+    .adv-title{font-size:20px;font-weight:700;margin-bottom:12px;}
+    .adv-desc{font-size:15px;color:var(--muted);line-height:1.7;}
 
-    /* ── SECTION ── */
-    section { padding: 100px 48px; }
-    .section-tag {
-      font-size: 11px; font-weight: 700; letter-spacing: 3px;
-      text-transform: uppercase; color: var(--accent);
-      margin-bottom: 16px;
-    }
-    .section-title {
-      font-size: clamp(32px, 5vw, 56px);
-      font-weight: 800; line-height: 1.1; letter-spacing: -1px;
-      margin-bottom: 20px;
-    }
-    .section-desc {
-      font-size: 17px; color: rgba(255,255,255,0.55); line-height: 1.75;
-      max-width: 580px;
-    }
+    /* FAQ */
+    #faq{padding:120px 40px;background:var(--surface);border-radius:40px;margin:0 20px 20px;}
+    .faq-inner{max-width:800px;margin:0 auto;}
+    .faq-item{border-bottom:1px solid var(--border);padding:28px 0;}
+    .faq-q{font-size:17px;font-weight:700;cursor:none;display:flex;justify-content:space-between;align-items:center;gap:20px;}
+    .faq-icon{font-size:20px;color:var(--accent);flex-shrink:0;transition:transform .3s;}
+    .faq-item.open .faq-icon{transform:rotate(45deg);}
+    .faq-a{font-size:15px;color:var(--muted);line-height:1.75;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;}
+    .faq-item.open .faq-a{max-height:300px;padding-top:16px;}
 
-    /* ── ABOUT ── */
-    .about { max-width: 1200px; margin: 0 auto; }
-    .about-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
-      align-items: center; margin-top: 60px;
-    }
-    .about-visual {
-      aspect-ratio: 4/5;
-      background: var(--surface2); border-radius: 24px;
-      border: 1px solid var(--border);
-      overflow: hidden; position: relative;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .about-visual-inner {
-      font-size: 100px; font-weight: 800; letter-spacing: -4px;
-      color: rgba(255,255,255,0.04);
-      position: absolute;
-    }
-    .about-visual-eye {
-      width: 80%; height: 80%; object-fit: cover; border-radius: 16px;
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; color: rgba(255,255,255,0.3); letter-spacing: 4px;
-      text-transform: uppercase;
-    }
-    .about-facts { display: flex; flex-direction: column; gap: 24px; margin-top: 40px; }
-    .fact {
-      display: flex; gap: 16px; align-items: flex-start;
-      padding: 20px; background: var(--surface2);
-      border: 1px solid var(--border); border-radius: 16px;
-    }
-    .fact-icon {
-      width: 40px; height: 40px; border-radius: 12px;
-      background: rgba(126,255,212,0.1);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 18px;
-    }
-    .fact-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-    .fact-text p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.5; }
+    /* FOOTER */
+    footer{padding:60px 40px;border-top:1px solid var(--border);max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;}
+    .footer-logo{font-size:24px;font-weight:800;letter-spacing:.08em;}
+    .footer-links{display:flex;gap:32px;}
+    .footer-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .footer-links a:hover{color:var(--text);}
+    .footer-copy{font-size:13px;color:var(--muted);}
+    .footer-warning{font-size:11px;color:var(--muted);opacity:.6;margin-top:8px;text-align:center;width:100%;}
 
-    /* ── HOW IT WORKS ── */
-    .how { background: var(--surface); }
-    .how-inner { max-width: 1200px; margin: 0 auto; }
-    .steps {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 24px; margin-top: 60px;
-    }
-    .step {
-      padding: 32px 24px;
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 20px; position: relative;
-    }
-    .step-num {
-      font-size: 48px; font-weight: 800;
-      color: rgba(255,255,255,0.04); letter-spacing: -2px;
-      position: absolute; top: 16px; right: 20px;
-    }
-    .step-icon { font-size: 28px; margin-bottom: 16px; }
-    .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
-    .step p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+    /* UTILS */
+    .reveal{opacity:0;transform:translateY(40px);}
+    .section-sub{font-size:clamp(14px,1.6vw,17px);color:var(--muted);margin-top:16px;max-width:560px;line-height:1.7;}
+    .text-accent{color:var(--accent);}
 
-    /* ── CATALOG ── */
-    .catalog { max-width: 1400px; margin: 0 auto; }
-    .catalog-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 60px; flex-wrap: wrap; gap: 20px;
+    /* MOBILE */
+    @media(max-width:900px){
+      .about-grid{grid-template-columns:1fr;}
+      .how-steps{grid-template-columns:1fr 1fr;}
+      .step::before{display:none;}
+      .adv-grid{grid-template-columns:1fr 1fr;}
+      footer{flex-direction:column;text-align:center;}
+      .footer-links{flex-wrap:wrap;justify-content:center;}
     }
-    .catalog-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
+    @media(max-width:600px){
+      #about,#advantages,#catalog .catalog-header,footer{padding-left:20px;padding-right:20px;}
+      #how,#faq{margin:0 10px;padding-left:20px;padding-right:20px;}
+      .how-steps{grid-template-columns:1fr;}
+      .adv-grid{grid-template-columns:1fr;}
+      .features-grid{grid-template-columns:1fr;}
+      .flavor-card{flex:0 0 280px;}
     }
-    .card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-      will-change: transform;
-      opacity: 0; transform: translateY(40px);
+    @media(prefers-reduced-motion:reduce){
+      *{animation:none!important;transition:none!important;}
     }
-    .card:hover { transform: translateY(-6px) scale(1.02); }
-    .card-img {
-      aspect-ratio: 4/3;
-      overflow: hidden;
-      position: relative;
-      background: var(--surface);
-    }
-    .card-img img {
-      width: 100%; height: 100%; object-fit: cover;
-      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      display: block;
-    }
-    .card:hover .card-img img { transform: scale(1.08); }
-    .card-img-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%);
-    }
-    .card-badge {
-      position: absolute; top: 16px; left: 16px;
-      background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 5px 12px; border-radius: 100px;
-      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-      color: rgba(255,255,255,0.8);
-    }
-    .card-price-badge {
-      position: absolute; top: 16px; right: 16px;
-      background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 5px 12px; border-radius: 100px;
-      font-size: 12px; font-weight: 700; color: #fff;
-    }
-    .card-body { padding: 24px; }
-    .card-name { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
-    .card-desc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.5; margin-bottom: 20px; }
-    .card-meta { display: flex; justify-content: space-between; align-items: center; }
-    .card-nicotine {
-      font-size: 12px; color: rgba(255,255,255,0.4);
-      font-weight: 600; letter-spacing: 0.5px;
-    }
-    .card-nicotine strong { color: var(--text); font-size: 14px; }
-    .card-strength { display: flex; gap: 5px; align-items: center; }
-    .strength-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: rgba(255,255,255,0.12);
-      transition: background 0.5s ease, transform 0.3s ease;
-    }
-    .strength-dot.active { transform: scale(1.1); }
-    .card-footer {
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .card-cta {
-      font-size: 13px; font-weight: 700; color: var(--text);
-      text-decoration: none; letter-spacing: 0.5px;
-      display: flex; align-items: center; gap: 6px;
-      transition: gap 0.2s;
-    }
-    .card-cta:hover { gap: 10px; }
-    .card-format {
-      font-size: 11px; color: rgba(255,255,255,0.3);
-      font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
-    }
-
-    /* ── BENEFITS ── */
-    .benefits-inner { max-width: 1200px; margin: 0 auto; }
-    .benefits-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 24px; margin-top: 60px;
-    }
-    .benefit {
-      padding: 36px 28px;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 20px;
-    }
-    .benefit-icon { font-size: 32px; margin-bottom: 20px; }
-    .benefit h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
-    .benefit p { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.65; }
-
-    /* ── FAQ ── */
-    .faq { background: var(--surface); }
-    .faq-inner { max-width: 800px; margin: 0 auto; }
-    .faq-list { margin-top: 48px; }
-    .faq-item {
-      border-bottom: 1px solid var(--border);
-    }
-    .faq-q {
-      width: 100%; background: none; border: none; color: var(--text);
-      padding: 24px 0;
-      font-family: inherit; font-size: 16px; font-weight: 600;
-      text-align: left; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center; gap: 16px;
-    }
-    .faq-q:hover { color: rgba(255,255,255,0.75); }
-    .faq-icon { font-size: 20px; transition: transform 0.3s; flex-shrink: 0; color: rgba(255,255,255,0.3); }
-    .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--accent); }
-    .faq-a {
-      font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.7;
-      max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s;
-    }
-    .faq-item.open .faq-a { max-height: 300px; padding-bottom: 24px; }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--bg); border-top: 1px solid var(--border);
-      padding: 60px 48px 40px;
-    }
-    .footer-inner { max-width: 1200px; margin: 0 auto; }
-    .footer-top {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      flex-wrap: wrap; gap: 48px; margin-bottom: 48px;
-    }
-    .footer-brand { max-width: 300px; }
-    .footer-logo { font-size: 24px; font-weight: 800; letter-spacing: 4px; margin-bottom: 14px; }
-    .footer-tagline { font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.6; }
-    .footer-col h4 { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .footer-col a { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 14px; transition: color 0.2s; }
-    .footer-col a:hover { color: var(--text); }
-    .social-links { display: flex; gap: 12px; margin-top: 24px; }
-    .social-link {
-      width: 40px; height: 40px; border-radius: 12px;
-      background: var(--surface2); border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.5); text-decoration: none; font-size: 16px;
-      transition: background 0.2s, color 0.2s;
-    }
-    .social-link:hover { background: rgba(255,255,255,0.1); color: var(--text); }
-    .footer-bottom {
-      border-top: 1px solid var(--border); padding-top: 24px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
-    }
-    .footer-bottom p { font-size: 12px; color: rgba(255,255,255,0.25); }
-    .age-badge {
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-      padding: 6px 14px; border-radius: 100px;
-      font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.35);
-      letter-spacing: 1px;
-    }
-
-    /* ── MOBILE ── */
-    @media (max-width: 1024px) {
-      .steps { grid-template-columns: repeat(2, 1fr); }
-      .benefits-grid { grid-template-columns: repeat(2, 1fr); }
-      .about-grid { grid-template-columns: 1fr; gap: 40px; }
-      .about-visual { aspect-ratio: 16/9; max-height: 320px; }
-    }
-    @media (max-width: 768px) {
-      nav { padding: 16px 24px; }
-      .nav-links { display: none; }
-      section { padding: 72px 24px; }
-      .steps { grid-template-columns: 1fr; }
-      .benefits-grid { grid-template-columns: 1fr; }
-      .stats { gap: 32px; padding: 28px 24px; }
-      footer { padding: 48px 24px 32px; }
-      .footer-top { flex-direction: column; }
-    }
-    @media (max-width: 480px) {
-      .catalog-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ── REVEAL UTIL ── */
-    .reveal { opacity: 0; transform: translateY(30px); }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">KLINT</a>
-  <ul class="nav-links">
-    <li><a href="#about">О бренде</a></li>
-    <li><a href="#how">Как это работает</a></li>
-    <li><a href="#catalog">Вкусы</a></li>
-    <li><a href="#faq">FAQ</a></li>
-  </ul>
-  <a href="#catalog" class="nav-cta">Выбрать вкус</a>
-</nav>
+<!-- CURSOR -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
 
 <!-- HERO -->
-<section class="hero" id="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-noise"></div>
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
   <div class="hero-content">
-    <div class="hero-tag"><span></span>Из Швеции · Без табака · Без дыма</div>
-    <h1 class="hero-title"><em>НАСТОЯЩАЯ</em><br>#ПРЕМИУМ БАЗА</h1>
-    <p class="hero-subtitle">Теперь в России</p>
-    <p class="hero-desc">KLINT — мировой бренд никотиновых паучей из Швеции. Без табака. Крепость от 12 до 30 мг/г. Создан для динамичного образа жизни.</p>
-    <div class="hero-actions">
-      <a href="#catalog" class="btn-primary">Смотреть вкусы</a>
-      <a href="#about" class="btn-secondary">О бренде</a>
+    <p class="hero-eyebrow">Из Швеции · Без табака · Без дыма</p>
+    <h1 class="hero-title" id="hero-title">
+      <span>НА</span><span>СТО</span><span>ЯЩА</span><span>Я</span><br>
+      <span class="text-accent">#ПРЕ</span><span class="text-accent">МИ</span><span class="text-accent">УМ</span><br>
+      <span>БА</span><span>ЗА</span>
+    </h1>
+    <p class="hero-sub">KLINT — мировой бренд никотиновых паучей из Швеции. Без табака. Крепость от 12 до 30 мг/г. Создан для динамичного образа жизни.</p>
+    <div>
+      <a href="#catalog" class="btn-primary">Смотреть вкусы <span>→</span></a>
+      <a href="#about" class="btn-outline">О бренде</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num" data-count="7">0</span><span class="stat-label">Вкусов</span></div>
+      <div class="stat"><span class="stat-num" data-count="20">0</span><span class="stat-label">мг/г никотина</span></div>
+      <div class="stat"><span class="stat-num" data-count="0">0</span><span class="stat-label">Табака</span></div>
+      <div class="stat"><span class="stat-num">🇸🇪</span><span class="stat-label">Швеция</span></div>
     </div>
   </div>
-  <div class="hero-scroll">
-    <span>Скролл</span>
+  <div class="scroll-hint" id="scroll-hint">
     <div class="scroll-line"></div>
+    <span>Скролл</span>
   </div>
 </section>
 
-<!-- STATS -->
-<div class="stats">
-  <div class="stat reveal">
-    <div class="stat-num">7</div>
-    <div class="stat-label">Вкусов</div>
-  </div>
-  <div class="stat reveal">
-    <div class="stat-num">14–20</div>
-    <div class="stat-label">мг/г никотина</div>
-  </div>
-  <div class="stat reveal">
-    <div class="stat-num">0</div>
-    <div class="stat-label">Табака</div>
-  </div>
-  <div class="stat reveal">
-    <div class="stat-num">🇸🇪</div>
-    <div class="stat-label">Швеция</div>
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee-track">
+    <span>KLINT RUSSIA</span><span><em>●</em> Premium Pouches</span><span>Без табака</span><span><em>●</em> Made in Sweden</span>
+    <span>12–30 мг/г</span><span><em>●</em> Slim формат</span><span>7 вкусов</span><span><em>●</em> No smoke</span>
+    <span>KLINT RUSSIA</span><span><em>●</em> Premium Pouches</span><span>Без табака</span><span><em>●</em> Made in Sweden</span>
+    <span>12–30 мг/г</span><span><em>●</em> Slim формат</span><span>7 вкусов</span><span><em>●</em> No smoke</span>
   </div>
 </div>
 
 <!-- ABOUT -->
 <section id="about">
-  <div class="about">
-    <div class="section-tag reveal">О бренде</div>
-    <h2 class="section-title reveal">Качество —<br>это не выбор,<br>это привычка.</h2>
-    <div class="about-grid">
-      <div class="about-visual reveal">
-        <div class="about-visual-inner">KLINT</div>
-        <div class="about-visual-eye">PREMIUM SWEDISH BRAND</div>
+  <div class="about-grid">
+    <div class="reveal">
+      <p class="about-tag">О бренде</p>
+      <h2 class="section-title">Качество —<br>это не выбор,<br>это <span class="text-accent">привычка.</span></h2>
+      <p class="about-body">KLINT создан в Швеции — родине никотиновых паучей. Мы используем только растительные волокна и фармацевтически чистый никотин. Никакого табака, никакого дыма, никакого запаха.</p>
+      <div class="features-grid" style="margin-top:36px;">
+        <div class="feat reveal"><div class="feat-icon">🌿</div><div class="feat-title">Без табака</div><div class="feat-desc">Только растительные волокна. Никакого горения и дыма.</div></div>
+        <div class="feat reveal"><div class="feat-icon">🧪</div><div class="feat-title">Фарм. никотин</div><div class="feat-desc">Высочайшая степень очистки — стабильный эффект.</div></div>
+        <div class="feat reveal"><div class="feat-icon">💧</div><div class="feat-title">Slim формат</div><div class="feat-desc">Тонкие паучи не заметны под губой. Комфорт весь день.</div></div>
+        <div class="feat reveal"><div class="feat-icon">🔥</div><div class="feat-title">До 30 мг/г</div><div class="feat-desc">Линейка для любого уровня — от 12 до 30 мг/г.</div></div>
       </div>
-      <div>
-        <p class="section-desc reveal">KLINT создан в Швеции — родине никотиновых паучей. Мы используем только растительные волокна и фармацевтически чистый никотин. Никакого табака, никакого дыма, никакого запаха.</p>
-        <div class="about-facts">
-          <div class="fact reveal">
-            <div class="fact-icon">🌿</div>
-            <div class="fact-text">
-              <h4>Без табака</h4>
-              <p>Только растительные волокна. Никакого горения и дыма.</p>
-            </div>
-          </div>
-          <div class="fact reveal">
-            <div class="fact-icon">🧪</div>
-            <div class="fact-text">
-              <h4>Фармацевтический никотин</h4>
-              <p>Высочайшая степень очистки — стабильный и предсказуемый эффект.</p>
-            </div>
-          </div>
-          <div class="fact reveal">
-            <div class="fact-icon">💧</div>
-            <div class="fact-text">
-              <h4>Slim формат</h4>
-              <p>Тонкие паучи не заметны под губой. Комфорт весь день.</p>
-            </div>
-          </div>
-          <div class="fact reveal">
-            <div class="fact-icon">🔥</div>
-            <div class="fact-text">
-              <h4>Крепость до 30 мг/г</h4>
-              <p>Линейка для любого уровня — от 12 до 30 мг/г.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+    </div>
+    <div class="about-visual reveal">
+      <div class="about-visual-inner">🏔️<br><span style="font-size:16px;color:var(--muted);font-family:'Manrope';margin-top:16px;display:block;letter-spacing:.1em;text-transform:uppercase;">Swedish Premium</span></div>
     </div>
   </div>
 </section>
 
 <!-- HOW IT WORKS -->
-<section id="how" class="how">
+<section id="how">
   <div class="how-inner">
-    <div class="section-tag reveal">Как это работает</div>
-    <h2 class="section-title reveal">Просто.<br>Незаметно.<br>Эффективно.</h2>
-    <div class="steps">
+    <div class="reveal">
+      <p class="about-tag">Как это работает</p>
+      <h2 class="section-title">Просто. Незаметно.<br><span class="text-accent">Эффективно.</span></h2>
+    </div>
+    <div class="how-steps">
       <div class="step reveal">
         <div class="step-num">01</div>
         <div class="step-icon">📦</div>
-        <h3>Открой банку</h3>
-        <p>Каждая банка содержит 20 паучей. Верхнее отделение для использованных — всегда чисто.</p>
+        <div class="step-title">Открой банку</div>
+        <div class="step-desc">Каждая банка содержит 20 паучей. Верхнее отделение для использованных — всегда чисто.</div>
       </div>
       <div class="step reveal">
         <div class="step-num">02</div>
         <div class="step-icon">👅</div>
-        <h3>Положи под губу</h3>
-        <p>Помести пауч между верхней губой и дёсной. Slim-формат не мешает разговору.</p>
+        <div class="step-title">Положи под губу</div>
+        <div class="step-desc">Помести пауч между верхней губой и дёсной. Slim-формат не мешает разговору.</div>
       </div>
       <div class="step reveal">
         <div class="step-num">03</div>
         <div class="step-icon">⚡</div>
-        <h3>Почувствуй эффект</h3>
-        <p>Никотин всасывается через слизистую. Эффект наступает через 3–5 минут.</p>
+        <div class="step-title">Почувствуй эффект</div>
+        <div class="step-desc">Никотин всасывается через слизистую. Эффект наступает через 3–5 минут.</div>
       </div>
       <div class="step reveal">
         <div class="step-num">04</div>
         <div class="step-icon">🕐</div>
-        <h3>Наслаждайся до 40 минут</h3>
-        <p>Один пауч работает от 20 до 40 минут. Без дыма, без запаха, везде.</p>
+        <div class="step-title">До 40 минут</div>
+        <div class="step-desc">Один пауч работает от 20 до 40 минут. Без дыма, без запаха, везде.</div>
       </div>
     </div>
   </div>
@@ -557,216 +257,151 @@
 
 <!-- CATALOG -->
 <section id="catalog">
-  <div class="catalog">
-    <div class="catalog-header">
-      <div>
-        <div class="section-tag">Линейка вкусов</div>
-        <h2 class="section-title">7 вкусов.<br>Один выбор.</h2>
-      </div>
-      <p style="color:rgba(255,255,255,0.4);font-size:14px;max-width:240px;text-align:right;line-height:1.6;">Все продукты содержат никотин. Только для совершеннолетних.</p>
-    </div>
-    <div class="catalog-grid">
+  <div class="catalog-header">
+    <p class="about-tag reveal">Линейка вкусов</p>
+    <h2 class="section-title reveal">7 вкусов.<br><span class="text-accent">Один выбор.</span></h2>
+    <p class="section-sub reveal">Все продукты содержат никотин. Только для совершеннолетних.</p>
+  </div>
+  <div class="catalog-scroll-wrap">
+    <div class="catalog-track" id="catalog-track">
 
       <!-- Apple Mint -->
-      <div class="card" data-accent="#7effd4" data-strength="5">
-        <div class="card-img">
-          <img src="img/apple-mint.png" alt="Apple Mint" loading="lazy" />
-          <div class="card-img-overlay"></div>
-          <div class="card-badge">APPLE MINT</div>
-          <div class="card-price-badge">550 ₽</div>
+      <div class="flavor-card" data-color="#7effd4" style="--card-accent:#7effd4;">
+        <div class="card-img-wrap">
+          <div class="card-glow" style="background:radial-gradient(circle,#7effd4,transparent 70%);"></div>
+          <img src="img/apple-mint.png" alt="Apple Mint"/>
         </div>
         <div class="card-body">
           <div class="card-name">Apple Mint</div>
-          <div class="card-desc">Свежее яблоко и холодная мята — идеальный летний баланс.</div>
-          <div class="card-meta">
-            <div class="card-nicotine"><strong>20</strong> мг/г</div>
-            <div class="card-strength">
-              <div class="strength-dot" style="--c:#7effd4"></div>
-              <div class="strength-dot" style="--c:#7effd4"></div>
-              <div class="strength-dot" style="--c:#7effd4"></div>
-              <div class="strength-dot" style="--c:#7effd4"></div>
-              <div class="strength-dot" style="--c:#7effd4"></div>
-              <div class="strength-dot" style="--c:#7effd4"></div>
+          <div class="card-mg">Никотиновые паучи · 20 мг</div>
+          <div class="card-price">550 ₽</div>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-strength="5" data-max="6">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="card-format">Slim · 20 шт</span>
-          <a href="https://www.klintrussia.com/shop/p/product-2-5c6mb-j8mng-zsl73-wwdcj" target="_blank" class="card-cta">Купить →</a>
         </div>
       </div>
 
       <!-- Arctic Mint -->
-      <div class="card" data-accent="#7ad4ff" data-strength="5">
-        <div class="card-img">
-          <img src="img/arctic-mint.png" alt="Arctic Mint" loading="lazy" />
-          <div class="card-img-overlay"></div>
-          <div class="card-badge">ARCTIC MINT</div>
-          <div class="card-price-badge">550 ₽</div>
+      <div class="flavor-card" data-color="#a8d8ff" style="--card-accent:#a8d8ff;">
+        <div class="card-img-wrap">
+          <div class="card-glow" style="background:radial-gradient(circle,#a8d8ff,transparent 70%);"></div>
+          <img src="img/arctic-mint.png" alt="Arctic Mint"/>
         </div>
         <div class="card-body">
           <div class="card-name">Arctic Mint</div>
-          <div class="card-desc">Ледяная арктическая мята. Максимальный холод, чистый вкус.</div>
-          <div class="card-meta">
-            <div class="card-nicotine"><strong>20</strong> мг/г</div>
-            <div class="card-strength">
-              <div class="strength-dot" style="--c:#7ad4ff"></div>
-              <div class="strength-dot" style="--c:#7ad4ff"></div>
-              <div class="strength-dot" style="--c:#7ad4ff"></div>
-              <div class="strength-dot" style="--c:#7ad4ff"></div>
-              <div class="strength-dot" style="--c:#7ad4ff"></div>
-              <div class="strength-dot" style="--c:#7ad4ff"></div>
+          <div class="card-mg">Никотиновые паучи · 20 мг</div>
+          <div class="card-price">550 ₽</div>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-strength="5" data-max="6">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="card-format">Slim · 20 шт</span>
-          <a href="https://www.klintrussia.com/shop/p/arctic-mint" target="_blank" class="card-cta">Купить →</a>
         </div>
       </div>
 
       <!-- Avalanche Mint -->
-      <div class="card" data-accent="#a0f0ff" data-strength="5">
-        <div class="card-img">
-          <img src="img/avalanche-mint.png" alt="Avalanche Mint" loading="lazy" />
-          <div class="card-img-overlay"></div>
-          <div class="card-badge">AVALANCHE MINT</div>
-          <div class="card-price-badge">550 ₽</div>
+      <div class="flavor-card" data-color="#c4b5fd" style="--card-accent:#c4b5fd;">
+        <div class="card-img-wrap">
+          <div class="card-glow" style="background:radial-gradient(circle,#c4b5fd,transparent 70%);"></div>
+          <img src="img/avalanche-mint.png" alt="Avalanche Mint"/>
         </div>
         <div class="card-body">
           <div class="card-name">Avalanche Mint</div>
-          <div class="card-desc">Мощная волна мяты — как горный снегопад. Интенсивная свежесть.</div>
-          <div class="card-meta">
-            <div class="card-nicotine"><strong>14</strong> мг/г</div>
-            <div class="card-strength">
-              <div class="strength-dot" style="--c:#a0f0ff"></div>
-              <div class="strength-dot" style="--c:#a0f0ff"></div>
-              <div class="strength-dot" style="--c:#a0f0ff"></div>
-              <div class="strength-dot" style="--c:#a0f0ff"></div>
-              <div class="strength-dot" style="--c:#a0f0ff"></div>
-              <div class="strength-dot" style="--c:#a0f0ff"></div>
+          <div class="card-mg">Никотиновые паучи · 20 мг</div>
+          <div class="card-price">550 ₽</div>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-strength="4" data-max="6">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="card-format">Slim · 20 шт</span>
-          <a href="https://www.klintrussia.com" target="_blank" class="card-cta">Купить →</a>
         </div>
       </div>
 
       <!-- Cola Lime -->
-      <div class="card" data-accent="#ff6b6b" data-strength="5">
-        <div class="card-img">
-          <img src="img/cola-lime.png" alt="Cola Lime" loading="lazy" />
-          <div class="card-img-overlay"></div>
-          <div class="card-badge">COLA LIME</div>
-          <div class="card-price-badge">550 ₽</div>
+      <div class="flavor-card" data-color="#ffd97d" style="--card-accent:#ffd97d;">
+        <div class="card-img-wrap">
+          <div class="card-glow" style="background:radial-gradient(circle,#ffd97d,transparent 70%);"></div>
+          <img src="img/cola-lime.png" alt="Cola Lime"/>
         </div>
         <div class="card-body">
           <div class="card-name">Cola Lime</div>
-          <div class="card-desc">Классическая кола с кислинкой лайма — дерзкий и необычный вкус.</div>
-          <div class="card-meta">
-            <div class="card-nicotine"><strong>14</strong> мг/г</div>
-            <div class="card-strength">
-              <div class="strength-dot" style="--c:#ff6b6b"></div>
-              <div class="strength-dot" style="--c:#ff6b6b"></div>
-              <div class="strength-dot" style="--c:#ff6b6b"></div>
-              <div class="strength-dot" style="--c:#ff6b6b"></div>
-              <div class="strength-dot" style="--c:#ff6b6b"></div>
-              <div class="strength-dot" style="--c:#ff6b6b"></div>
+          <div class="card-mg">Никотиновые паучи · 16 мг</div>
+          <div class="card-price">550 ₽</div>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-strength="4" data-max="6">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="card-format">Slim · 20 шт</span>
-          <a href="https://www.klintrussia.com" target="_blank" class="card-cta">Купить →</a>
         </div>
       </div>
 
       <!-- Freeze Mint -->
-      <div class="card" data-accent="#b0e0ff" data-strength="6">
-        <div class="card-img">
-          <img src="img/freeze-mint.png" alt="Freeze Mint" loading="lazy" />
-          <div class="card-img-overlay"></div>
-          <div class="card-badge">FREEZE MINT</div>
-          <div class="card-price-badge">550 ₽</div>
+      <div class="flavor-card" data-color="#67e8f9" style="--card-accent:#67e8f9;">
+        <div class="card-img-wrap">
+          <div class="card-glow" style="background:radial-gradient(circle,#67e8f9,transparent 70%);"></div>
+          <img src="img/freeze-mint.png" alt="Freeze Mint"/>
         </div>
         <div class="card-body">
           <div class="card-name">Freeze Mint</div>
-          <div class="card-desc">Экстремальный холод. Для тех, кто не знает компромиссов в свежести.</div>
-          <div class="card-meta">
-            <div class="card-nicotine"><strong>14</strong> мг/г</div>
-            <div class="card-strength">
-              <div class="strength-dot" style="--c:#b0e0ff"></div>
-              <div class="strength-dot" style="--c:#b0e0ff"></div>
-              <div class="strength-dot" style="--c:#b0e0ff"></div>
-              <div class="strength-dot" style="--c:#b0e0ff"></div>
-              <div class="strength-dot" style="--c:#b0e0ff"></div>
-              <div class="strength-dot" style="--c:#b0e0ff"></div>
+          <div class="card-mg">Никотиновые паучи · 30 мг</div>
+          <div class="card-price">550 ₽</div>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-strength="6" data-max="6">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="card-format">Slim · 20 шт</span>
-          <a href="https://www.klintrussia.com" target="_blank" class="card-cta">Купить →</a>
         </div>
       </div>
 
       <!-- Polar Mint -->
-      <div class="card" data-accent="#c8f0ff" data-strength="5">
-        <div class="card-img">
-          <img src="img/polar-mint.png" alt="Polar Mint" loading="lazy" />
-          <div class="card-img-overlay"></div>
-          <div class="card-badge">POLAR MINT</div>
-          <div class="card-price-badge">550 ₽</div>
+      <div class="flavor-card" data-color="#e0f2fe" style="--card-accent:#e0f2fe;">
+        <div class="card-img-wrap">
+          <div class="card-glow" style="background:radial-gradient(circle,#e0f2fe,transparent 70%);"></div>
+          <img src="img/polar-mint.png" alt="Polar Mint"/>
         </div>
         <div class="card-body">
           <div class="card-name">Polar Mint</div>
-          <div class="card-desc">Полярная чистота. Глубокий ментол с мягким завершением.</div>
-          <div class="card-meta">
-            <div class="card-nicotine"><strong>14</strong> мг/г</div>
-            <div class="card-strength">
-              <div class="strength-dot" style="--c:#c8f0ff"></div>
-              <div class="strength-dot" style="--c:#c8f0ff"></div>
-              <div class="strength-dot" style="--c:#c8f0ff"></div>
-              <div class="strength-dot" style="--c:#c8f0ff"></div>
-              <div class="strength-dot" style="--c:#c8f0ff"></div>
-              <div class="strength-dot" style="--c:#c8f0ff"></div>
+          <div class="card-mg">Никотиновые паучи · 14 мг</div>
+          <div class="card-price">550 ₽</div>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-strength="3" data-max="6">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="card-format">Slim · 20 шт</span>
-          <a href="https://www.klintrussia.com" target="_blank" class="card-cta">Купить →</a>
         </div>
       </div>
 
       <!-- Alaskan Mint -->
-      <div class="card" data-accent="#d4f5c8" data-strength="4">
-        <div class="card-img">
-          <img src="img/alaskan-mint.png" alt="Alaskan Mint" loading="lazy" />
-          <div class="card-img-overlay"></div>
-          <div class="card-badge">ALASKAN MINT</div>
-          <div class="card-price-badge">550 ₽</div>
+      <div class="flavor-card" data-color="#86efac" style="--card-accent:#86efac;">
+        <div class="card-img-wrap">
+          <div class="card-glow" style="background:radial-gradient(circle,#86efac,transparent 70%);"></div>
+          <img src="img/alaskan-mint.png" alt="Alaskan Mint"/>
         </div>
         <div class="card-body">
           <div class="card-name">Alaskan Mint</div>
-          <div class="card-desc">Дикая свежесть Аляски. Природная мята с тонкой хвойной ноткой.</div>
-          <div class="card-meta">
-            <div class="card-nicotine"><strong>14</strong> мг/г</div>
-            <div class="card-strength">
-              <div class="strength-dot" style="--c:#d4f5c8"></div>
-              <div class="strength-dot" style="--c:#d4f5c8"></div>
-              <div class="strength-dot" style="--c:#d4f5c8"></div>
-              <div class="strength-dot" style="--c:#d4f5c8"></div>
-              <div class="strength-dot" style="--c:#d4f5c8"></div>
-              <div class="strength-dot" style="--c:#d4f5c8"></div>
+          <div class="card-mg">Никотиновые паучи · 12 мг</div>
+          <div class="card-price">550 ₽</div>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-strength="3" data-max="6">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="card-format">Slim · 20 шт</span>
-          <a href="https://www.klintrussia.com" target="_blank" class="card-cta">Купить →</a>
         </div>
       </div>
 
@@ -774,260 +409,272 @@
   </div>
 </section>
 
-<!-- BENEFITS -->
-<section id="benefits" style="background:var(--surface);">
-  <div class="benefits-inner">
-    <div class="section-tag reveal">Преимущества</div>
-    <h2 class="section-title reveal">Почему KLINT</h2>
-    <div class="benefits-grid">
-      <div class="benefit reveal">
-        <div class="benefit-icon">🚭</div>
-        <h3>Без табака и дыма</h3>
-        <p>Никакого горения, никакого дыма. Используй в любом месте — в офисе, самолёте, ресторане.</p>
-      </div>
-      <div class="benefit reveal">
-        <div class="benefit-icon">👃</div>
-        <h3>Без запаха</h3>
-        <p>Паучи не оставляют запаха на одежде, руках и дыхании. Никто не узнает.</p>
-      </div>
-      <div class="benefit reveal">
-        <div class="benefit-icon">⚡</div>
-        <h3>Быстрый эффект</h3>
-        <p>Никотин через слизистую — быстрее чем курение. Эффект наступает за 3–5 минут.</p>
-      </div>
-      <div class="benefit reveal">
-        <div class="benefit-icon">🌿</div>
-        <h3>Растительные волокна</h3>
-        <p>Только натуральная целлюлоза. Никаких синтетических наполнителей.</p>
-      </div>
-      <div class="benefit reveal">
-        <div class="benefit-icon">💼</div>
-        <h3>Для любого образа жизни</h3>
-        <p>Компактная банка в кармане. Дискретно. Всегда с собой.</p>
-      </div>
-      <div class="benefit reveal">
-        <div class="benefit-icon">🏆</div>
-        <h3>Шведское качество</h3>
-        <p>Производство в Швеции по строжайшим стандартам. Фармацевтически чистый никотин.</p>
-      </div>
-    </div>
+<!-- ADVANTAGES -->
+<section id="advantages">
+  <div class="reveal">
+    <p class="about-tag">Преимущества</p>
+    <h2 class="section-title">Почему <span class="text-accent">KLINT?</span></h2>
+  </div>
+  <div class="adv-grid">
+    <div class="adv-card reveal"><div class="adv-icon">🌍</div><div class="adv-title">Мировой бренд</div><div class="adv-desc">KLINT — признанный премиальный бренд из Швеции. Продаётся в десятках стран. Теперь официально в России.</div></div>
+    <div class="adv-card reveal"><div class="adv-icon">✈️</div><div class="adv-title">Везде и всегда</div><div class="adv-desc">Без дыма, без запаха, без пепла. Пользуйся в самолёте, офисе, ресторане — никому не мешает.</div></div>
+    <div class="adv-card reveal"><div class="adv-icon">🎯</div><div class="adv-title">Точная дозировка</div><div class="adv-desc">Каждый пауч содержит ровно столько никотина, сколько указано. Никаких сюрпризов.</div></div>
+    <div class="adv-card reveal"><div class="adv-icon">♻️</div><div class="adv-title">Умная упаковка</div><div class="adv-desc">Встроенное отделение для использованных паучей в крышке. Всегда чисто и аккуратно.</div></div>
+    <div class="adv-card reveal"><div class="adv-icon">🧬</div><div class="adv-title">Чистый состав</div><div class="adv-desc">Растительные волокна, пищевые ароматизаторы, фармацевтический никотин. Больше ничего лишнего.</div></div>
+    <div class="adv-card reveal"><div class="adv-icon">⚡</div><div class="adv-title">Быстрый эффект</div><div class="adv-desc">Никотин всасывается через слизистую за 3–5 минут. Действует до 40 минут.</div></div>
   </div>
 </section>
 
 <!-- FAQ -->
-<section id="faq" class="faq">
+<section id="faq">
   <div class="faq-inner">
-    <div class="section-tag reveal">FAQ</div>
-    <h2 class="section-title reveal">Вопросы<br>и ответы</h2>
-    <div class="faq-list">
-      <div class="faq-item">
-        <button class="faq-q">Что такое никотиновый пауч? <span class="faq-icon">+</span></button>
-        <div class="faq-a">Никотиновый пауч — это небольшой пакетик с растительными волокнами и никотином, который кладут под верхнюю губу. Без табака, без горения, без дыма.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">Как долго действует один пауч? <span class="faq-icon">+</span></button>
-        <div class="faq-a">Один пауч KLINT работает от 20 до 40 минут в зависимости от индивидуальной чувствительности и вкуса. Эффект начинается через 3–5 минут после размещения под губой.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">Сколько паучей в одной банке? <span class="faq-icon">+</span></button>
-        <div class="faq-a">В каждой банке KLINT 20 паучей. В крышке есть специальное отделение для использованных — удобно и чисто.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">Можно ли использовать в общественных местах? <span class="faq-icon">+</span></button>
-        <div class="faq-a">Да. KLINT не создаёт дыма и запаха, поэтому его можно использовать там, где курение запрещено — в офисе, самолёте, кафе. Дискретно и незаметно.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">Какой никотин используется в KLINT? <span class="faq-icon">+</span></button>
-        <div class="faq-a">KLINT использует фармацевтически чистый никотин высочайшей степени очистки. Никакого табака — только чистый никотин в растительных волокнах.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">Что значит крепость 5/6 или 6/6? <span class="faq-icon">+</span></button>
-        <div class="faq-a">Это шкала KLINT от 1 до 6, где 6 — максимальная крепость. Большинство вкусов в линейке имеют крепость 5/6 (20 мг/г). Выбирай по своей привычке к никотину.</div>
-      </div>
+    <div class="reveal" style="margin-bottom:50px;">
+      <p class="about-tag">FAQ</p>
+      <h2 class="section-title">Частые<br><span class="text-accent">вопросы</span></h2>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Что такое никотиновый пауч?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Никотиновый пауч — это маленький пакетик с никотином и растительными волокнами, который кладут под верхнюю губу. Никотин всасывается через слизистую оболочку без горения, дыма и запаха.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">KLINT содержит табак?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Нет. KLINT полностью без табака. В составе — растительные волокна, фармацевтически чистый никотин и пищевые ароматизаторы.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Как долго действует один пауч?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Один пауч KLINT работает от 20 до 40 минут. Эффект начинается через 3–5 минут после размещения под губой.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Какую крепость выбрать?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Начинающим рекомендуем Polar Mint (14 мг) или Alaskan Mint (12 мг). Опытным пользователям — Apple Mint или Arctic Mint (20 мг). Для максимальной крепости — Freeze Mint (30 мг).</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Можно ли использовать в общественных местах?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Да. KLINT не горит, не производит дыма и не имеет запаха для окружающих. Его можно использовать в офисе, транспорте, ресторане — везде где курение запрещено.</div>
     </div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <div class="footer-logo">KLINT</div>
-        <p class="footer-tagline">Мировой бренд никотиновых паучей из Швеции. Без табака. Для динамичного образа жизни.</p>
-        <div class="social-links">
-          <a href="https://t.me/klintrussia" target="_blank" class="social-link">✈</a>
-          <a href="https://www.instagram.com/klint_russia" target="_blank" class="social-link">◎</a>
-          <a href="https://vk.com/klintrussia" target="_blank" class="social-link">В</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Магазин</h4>
-        <ul>
-          <li><a href="https://www.klintrussia.com/shop">Все вкусы</a></li>
-          <li><a href="#catalog">Apple Mint</a></li>
-          <li><a href="#catalog">Arctic Mint</a></li>
-          <li><a href="#catalog">Cola Lime</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Информация</h4>
-        <ul>
-          <li><a href="#about">О бренде</a></li>
-          <li><a href="#how">Как это работает</a></li>
-          <li><a href="#faq">FAQ</a></li>
-          <li><a href="https://www.klintrussia.com">Официальный сайт</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Контакты</h4>
-        <ul>
-          <li><a href="mailto:info@klintrussia.com">info@klintrussia.com</a></li>
-          <li><a href="https://t.me/klintrussia">Telegram</a></li>
-          <li><a href="https://www.klintrussia.com">klintrussia.com</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2024 KLINT Russia. Продукт содержит никотин. Только для лиц 18+.</p>
-      <div class="age-badge">18+</div>
-    </div>
-  </div>
+  <div class="footer-logo">KLINT</div>
+  <nav class="footer-links">
+    <a href="#about">О бренде</a>
+    <a href="#catalog">Вкусы</a>
+    <a href="#how">Как работает</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://t.me/klint_russia" target="_blank">Telegram</a>
+    <a href="https://www.klintrussia.com" target="_blank">klintrussia.com</a>
+  </nav>
+  <div class="footer-copy">© 2024 KLINT Russia</div>
+  <div class="footer-warning">Никотиносодержащий продукт. Продажа только совершеннолетним. Вызывает никотиновую зависимость.</div>
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script>
-(function() {
-  'use strict';
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 
-  // ── LENIS smooth scroll ──
-  const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── LENIS SMOOTH SCROLL ──────────────────────────────────────────────────────
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+let lenis;
+if(!isMobile){
+  lenis = new Lenis({lerp:0.1, smoothWheel:true});
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((t) => lenis.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
+}
 
-  // ── GSAP Register ──
-  gsap.registerPlugin(ScrollTrigger);
+// ── CUSTOM CURSOR ────────────────────────────────────────────────────────────
+if(!isMobile){
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let rx=0,ry=0,mx=0,my=0;
+  window.addEventListener('mousemove', e=>{mx=e.clientX;my=e.clientY;});
+  gsap.set(dot,{x:mx,y:my});
+  function animCursor(){
+    rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
+    gsap.set(ring,{x:rx,y:ry});
+    gsap.set(dot,{x:mx,y:my});
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+}
 
-  // ── HERO анимация (onload) ──
-  const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-  heroTl
-    .to('.hero-tag',     { opacity: 1, y: 0, duration: 0.8, delay: 0.2 })
-    .to('.hero-title',   { opacity: 1, y: 0, duration: 0.9 }, '-=0.4')
-    .to('.hero-subtitle',{ opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
-    .to('.hero-desc',    { opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
-    .to('.hero-actions', { opacity: 1, y: 0, duration: 0.7 }, '-=0.4')
-    .to('.hero-scroll',  { opacity: 1, duration: 0.6 }, '-=0.2');
+// ── THREE.JS HERO PARTICLES ──────────────────────────────────────────────────
+if(!isMobile){
+  const canvas = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:false, alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth, innerHeight);
 
-  // ── hero-title начальное состояние ──
-  gsap.set(['.hero-tag','.hero-title','.hero-subtitle','.hero-desc','.hero-actions'], { y: 30 });
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+  camera.position.z = 50;
 
-  // ── Parallax hero-bg ──
-  gsap.to('.hero-bg', {
-    yPercent: 30,
-    ease: 'none',
-    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+  // Particle field
+  const COUNT = 1800;
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(COUNT * 3);
+  const colors = new Float32Array(COUNT * 3);
+  const palette = [[0.49,1,0.83],[0.66,0.71,0.99],[0.41,0.91,0.97],[1,0.85,0.49]];
+  for(let i=0;i<COUNT;i++){
+    positions[i*3]   = (Math.random()-0.5)*160;
+    positions[i*3+1] = (Math.random()-0.5)*90;
+    positions[i*3+2] = (Math.random()-0.5)*80;
+    const c = palette[Math.floor(Math.random()*palette.length)];
+    colors[i*3]=c[0]; colors[i*3+1]=c[1]; colors[i*3+2]=c[2];
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  geo.setAttribute('color',    new THREE.BufferAttribute(colors,3));
+  const mat = new THREE.PointsMaterial({size:0.45, vertexColors:true, transparent:true, opacity:0.55});
+  const pts = new THREE.Points(geo, mat);
+  scene.add(pts);
+
+  let mouseX=0, mouseY=0;
+  window.addEventListener('mousemove', e=>{
+    mouseX = (e.clientX/innerWidth - 0.5)*2;
+    mouseY = (e.clientY/innerHeight - 0.5)*2;
   });
 
-  // ── Reveal утилита ──
-  gsap.utils.toArray('.reveal').forEach(el => {
-    gsap.fromTo(el,
-      { opacity: 0, y: 30 },
-      {
-        opacity: 1, y: 0, duration: 0.7, ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
-      }
-    );
+  window.addEventListener('resize', ()=>{
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
   });
 
-  // ── Карточки вкусов — stagger reveal ──
-  const cards = gsap.utils.toArray('.card');
-  cards.forEach((card, i) => {
-    gsap.to(card, {
-      opacity: 1, y: 0, duration: 0.6, ease: 'power2.out',
-      delay: (i % 3) * 0.12,
-      scrollTrigger: { trigger: card, start: 'top 90%', toggleActions: 'play none none none' }
-    });
-  });
+  let frame = 0;
+  (function tick(){
+    frame++;
+    pts.rotation.y = frame * 0.0003 + mouseX * 0.08;
+    pts.rotation.x = frame * 0.0001 - mouseY * 0.04;
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  })();
+} else {
+  // Mobile: hide canvas
+  document.getElementById('hero-canvas').style.display = 'none';
+  document.body.style.background = '#0a0a0f';
+}
 
-  // ── Hover: box-shadow по акцент-цвету карточки ──
-  cards.forEach(card => {
-    const accent = card.dataset.accent || '#7effd4';
-    card.addEventListener('mouseenter', () => {
-      gsap.to(card, {
-        boxShadow: `0 20px 60px ${accent}22, 0 0 0 1px ${accent}33`,
-        duration: 0.3
-      });
-    });
-    card.addEventListener('mouseleave', () => {
-      gsap.to(card, {
-        boxShadow: 'none',
-        duration: 0.3
-      });
-    });
-  });
+// ── HERO ANIMATION ───────────────────────────────────────────────────────────
+const tl = gsap.timeline({defaults:{ease:'power3.out'}});
+tl.to('.hero-eyebrow', {opacity:1, y:0, duration:0.8, delay:0.2})
+  .to('#hero-title span', {opacity:1, y:0, duration:0.9, stagger:0.06}, '-=0.4')
+  .to('.hero-sub', {opacity:1, y:0, duration:0.7}, '-=0.3')
+  .to('.btn-primary', {opacity:1, y:0, duration:0.6}, '-=0.4')
+  .to('.btn-outline', {opacity:1, y:0, duration:0.6}, '-=0.5')
+  .to('.stat', {opacity:1, y:0, duration:0.6, stagger:0.08}, '-=0.4')
+  .to('#scroll-hint', {opacity:1, duration:0.6}, '-=0.2');
 
-  // ── Dots анимация при появлении карточки ──
-  cards.forEach(card => {
-    const accent = card.dataset.accent || '#7effd4';
-    const strength = parseInt(card.dataset.strength, 10) || 5;
-    const dots = card.querySelectorAll('.strength-dot');
-
-    ScrollTrigger.create({
-      trigger: card,
-      start: 'top 88%',
-      onEnter: () => {
-        dots.forEach((dot, i) => {
-          if (i < strength) {
-            gsap.to(dot, {
-              backgroundColor: accent,
-              duration: 0.3,
-              delay: i * 0.08,
-              ease: 'power1.out'
-            });
-          }
-        });
-      }
-    });
-  });
-
-  // ── Stats counter анимация ──
-  // (просто reveal через scrollTrigger — числа статичны)
-
-  // ── FAQ accordion ──
-  document.querySelectorAll('.faq-q').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.closest('.faq-item');
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
-    });
-  });
-
-  // ── Nav scroll effect ──
+// ── COUNTER ANIMATION ────────────────────────────────────────────────────────
+document.querySelectorAll('[data-count]').forEach(el=>{
+  const target = +el.dataset.count;
+  if(target === 0) return;
   ScrollTrigger.create({
-    start: 100,
-    onUpdate: (self) => {
-      const nav = document.querySelector('nav');
-      if (self.scroller.scrollY > 100) {
-        nav.style.backdropFilter = 'blur(20px)';
-        nav.style.background = 'rgba(10,10,15,0.92)';
-      } else {
-        nav.style.backdropFilter = 'blur(0px)';
-        nav.style.background = 'linear-gradient(to bottom, rgba(10,10,15,0.95), transparent)';
-      }
+    trigger: el,
+    start: 'top 85%',
+    once: true,
+    onEnter: () => {
+      gsap.to({val:0},{val:target, duration:1.6, ease:'power2.out',
+        onUpdate: function(){ el.textContent = Math.round(this.targets()[0].val); }
+      });
     }
   });
+});
 
-  // ── prefers-reduced-motion fallback ──
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    gsap.globalTimeline.timeScale(100);
-  }
+// ── REVEAL ON SCROLL ─────────────────────────────────────────────────────────
+gsap.utils.toArray('.reveal').forEach(el => {
+  gsap.fromTo(el,
+    {opacity:0, y:44},
+    {opacity:1, y:0, duration:0.85, ease:'power3.out',
+     scrollTrigger:{trigger:el, start:'top 88%', once:true}}
+  );
+});
 
-})();
+// ── CATALOG HORIZONTAL SCROLL ────────────────────────────────────────────────
+if(!isMobile){
+  const track = document.getElementById('catalog-track');
+  gsap.to(track, {
+    x: () => -(track.scrollWidth - window.innerWidth + 80),
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#catalog',
+      start: 'top top',
+      end: () => '+=' + (track.scrollWidth - window.innerWidth + 80),
+      pin: true,
+      scrub: 1,
+      invalidateOnRefresh: true,
+    }
+  });
+}
+
+// ── CARD HOVER GLOW ───────────────────────────────────────────────────────────
+document.querySelectorAll('.flavor-card').forEach(card => {
+  const color = card.dataset.color || '#7effd4';
+  card.addEventListener('mouseenter', () => {
+    card.style.boxShadow = `0 20px 60px ${color}30, 0 0 0 1px ${color}25`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.boxShadow = '';
+  });
+});
+
+// ── DOTS FILL ON SCROLL ───────────────────────────────────────────────────────
+gsap.utils.toArray('.dots').forEach(dotsEl => {
+  const strength = +dotsEl.dataset.strength;
+  const dotEls = dotsEl.querySelectorAll('.dot');
+  const card = dotsEl.closest('.flavor-card');
+  const color = card ? card.dataset.color : '#7effd4';
+  ScrollTrigger.create({
+    trigger: dotsEl,
+    start: 'top 90%',
+    once: true,
+    onEnter: () => {
+      dotEls.forEach((d,i) => {
+        if(i < strength){
+          gsap.to(d, {backgroundColor: color, duration:0.3, delay: i*0.12});
+        }
+      });
+    }
+  });
+});
+
+// ── CARD TILT (3D mouse) ──────────────────────────────────────────────────────
+if(!isMobile){
+  document.querySelectorAll('.flavor-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.transform = `perspective(600px) rotateY(${x*12}deg) rotateX(${-y*10}deg) translateY(-8px) scale(1.02)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
+
+// ── FAQ ACCORDION ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.querySelector('.faq-q').addEventListener('click', () => {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(o => o.classList.remove('open'));
+    if(!isOpen) item.classList.add('open');
+  });
+});
+
+// ── PARALLAX HERO ─────────────────────────────────────────────────────────────
+gsap.to('#hero-canvas', {
+  yPercent: 30,
+  ease: 'none',
+  scrollTrigger: {trigger:'#hero', start:'top top', end:'bottom top', scrub: true}
+});
 </script>
 </body>
 </html>
