@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KLINT Russia — Никотиновые паучи</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --white: #FFFFFF;
+    --black: #0A0A0A;
+    --grey-dark: #1A1A1A;
+    --grey-mid: #2E2E2E;
+    --grey-light: #888;
+    --accent: #C8F542;
+
+    /* per-flavor */
+    --c-mint:    #4AC8FA;
+    --c-berry:   #C84BFA;
+    --c-citrus:  #FAD84B;
+    --c-coffee:  #A0704A;
+    --c-melon:   #4BFAAE;
+    --c-tobacco: #D4A96A;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 2.5rem;
+    background: rgba(10,10,10,0.72);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-logo {
+    font-size: 1.5rem; font-weight: 900; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--white);
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--grey-light); text-decoration: none;
+    font-size: .85rem; letter-spacing: .08em; text-transform: uppercase;
+    transition: color .25s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: var(--accent); color: var(--black);
+    border: none; padding: .55rem 1.4rem;
+    font-size: .85rem; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; cursor: pointer; border-radius: 2px;
+    transition: opacity .2s;
+  }
+  .nav-cta:hover { opacity: .85; }
+
+  /* ─── HERO ─── */
+  #hero {
+    height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    position: relative; overflow: hidden;
+    padding: 0 1.5rem;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, #1a2a3a 0%, var(--black) 70%);
+  }
+  .hero-badge {
+    font-size: .75rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.2rem;
+    opacity: 0; transform: translateY(20px);
+  }
+  .hero-title {
+    font-size: clamp(3.5rem, 10vw, 9rem);
+    font-weight: 900; letter-spacing: -.02em; line-height: 1;
+    text-transform: uppercase; position: relative;
+    opacity: 0; transform: translateY(40px);
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    color: var(--grey-light); margin-top: 1.2rem; max-width: 480px;
+    opacity: 0; transform: translateY(30px);
+  }
+  .hero-cta-row {
+    display: flex; gap: 1rem; margin-top: 2.4rem; flex-wrap: wrap; justify-content: center;
+    opacity: 0; transform: translateY(30px);
+  }
+  .btn-primary {
+    background: var(--accent); color: var(--black);
+    padding: .8rem 2rem; font-size: .9rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border: none; cursor: pointer; border-radius: 2px;
+    transition: opacity .2s, transform .2s;
+  }
+  .btn-primary:hover { opacity: .85; transform: translateY(-2px); }
+  .btn-outline {
+    background: transparent; color: var(--white);
+    padding: .8rem 2rem; font-size: .9rem; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.3); cursor: pointer; border-radius: 2px;
+    transition: border-color .2s, transform .2s;
+  }
+  .btn-outline:hover { border-color: var(--white); transform: translateY(-2px); }
+  .hero-scroll-hint {
+    position: absolute; bottom: 2.2rem; left: 50%; transform: translateX(-50%);
+    font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--grey-light);
+    display: flex; flex-direction: column; align-items: center; gap: .5rem;
+    opacity: 0;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--grey-light), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: .4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* ─── AVALANCHE SECTION ─── */
+  #avalanche {
+    min-height: 60vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 6rem 2rem;
+    background: linear-gradient(to bottom, var(--black), var(--grey-dark));
+    overflow: hidden;
+  }
+  .avalanche-inner { max-width: 800px; }
+  .avalanche-label {
+    font-size: .75rem; letter-spacing: .25em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem; opacity: 0; transform: translateY(20px);
+  }
+  .avalanche-title {
+    font-size: clamp(2.5rem, 7vw, 6rem);
+    font-weight: 900; letter-spacing: -.02em; text-transform: uppercase;
+    line-height: 1; opacity: 0; transform: translateY(40px);
+  }
+  .avalanche-desc {
+    margin-top: 1.4rem; font-size: 1.05rem; color: var(--grey-light);
+    line-height: 1.7; opacity: 0; transform: translateY(30px);
+  }
+
+  /* ─── FLAVORS ─── */
+  #flavors { padding: 6rem 0 4rem; background: var(--grey-dark); }
+  .section-header {
+    text-align: center; padding: 0 2rem; margin-bottom: 3.5rem;
+  }
+  .section-label {
+    font-size: .72rem; letter-spacing: .25em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: .8rem; opacity: 0; transform: translateY(20px);
+  }
+  .section-title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900; letter-spacing: -.02em; text-transform: uppercase;
+    opacity: 0; transform: translateY(30px);
+  }
+
+  .flavors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px;
+    max-width: 1400px; margin: 0 auto;
+    padding: 0 1.5px;
+  }
+
+  .flavor-card {
+    position: relative; overflow: hidden;
+    aspect-ratio: 3/4;
+    cursor: pointer;
+    opacity: 0; transform: translateY(50px);
+  }
+  .flavor-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--flavor-color, #4AC8FA);
+    opacity: .12;
+    transition: opacity .4s;
+  }
+  .flavor-card:hover::before { opacity: .22; }
+
+  .flavor-bg {
+    position: absolute; inset: 0;
+    background: var(--grey-mid);
+    transition: transform .6s cubic-bezier(.25,.46,.45,.94);
+  }
+  .flavor-card:hover .flavor-bg { transform: scale(1.04); }
+
+  .flavor-visual {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .flavor-circle {
+    width: 55%; aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--flavor-color, #4AC8FA);
+    opacity: .18;
+    transition: opacity .4s, transform .4s;
+    filter: blur(30px);
+  }
+  .flavor-card:hover .flavor-circle { opacity: .32; transform: scale(1.15); }
+
+  .flavor-can {
+    position: absolute;
+    width: 42%; top: 15%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; /* emoji placeholder */
+    transition: transform .4s cubic-bezier(.25,.46,.45,.94);
+  }
+  .flavor-card:hover .flavor-can { transform: translateY(-8px) scale(1.05); }
+
+  .flavor-info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 1.5rem 1.5rem 1.8rem;
+    background: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 100%);
+    transition: transform .3s;
+  }
+  .flavor-name {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: 900; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--white); line-height: 1.1;
+  }
+  .flavor-sub {
+    font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--flavor-color, #4AC8FA); margin-top: .4rem;
+  }
+  .flavor-strength {
+    display: flex; gap: 4px; margin-top: .8rem; align-items: center;
+  }
+  .strength-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--flavor-color, #4AC8FA);
+  }
+  .strength-dot.empty { background: rgba(255,255,255,0.2); }
+  .flavor-mg {
+    font-size: .72rem; color: var(--grey-light); margin-left: .5rem;
+    letter-spacing: .06em;
+  }
+
+  /* ─── STATS / WHY ─── */
+  #why {
+    padding: 7rem 2rem;
+    background: var(--black);
+    text-align: center;
+  }
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px; margin-top: 4rem;
+    max-width: 1100px; margin-left: auto; margin-right: auto;
+  }
+  .why-item {
+    padding: 3rem 2rem;
+    background: var(--grey-dark);
+    opacity: 0; transform: translateY(40px);
+  }
+  .why-num {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 900; letter-spacing: -.03em;
+    color: var(--accent); line-height: 1;
+  }
+  .why-label {
+    font-size: .8rem; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--grey-light); margin-top: .8rem;
+  }
+
+  /* ─── HOW IT WORKS ─── */
+  #how {
+    padding: 7rem 2rem;
+    background: var(--grey-dark);
+  }
+  .how-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px; margin-top: 4rem;
+    max-width: 1100px; margin-left: auto; margin-right: auto;
+  }
+  .how-step {
+    padding: 2.5rem 1.5rem;
+    background: var(--black);
+    opacity: 0; transform: translateY(40px);
+  }
+  .step-num {
+    font-size: 3rem; font-weight: 900; color: var(--accent);
+    opacity: .3; line-height: 1;
+  }
+  .step-title {
+    font-size: 1rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; margin-top: 1rem; color: var(--white);
+  }
+  .step-desc {
+    font-size: .85rem; color: var(--grey-light); margin-top: .6rem;
+    line-height: 1.6;
+  }
+
+  /* ─── CTA STRIP ─── */
+  #cta-strip {
+    padding: 8rem 2rem;
+    background: var(--black);
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-strip-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(200,245,66,.07) 0%, transparent 70%);
+  }
+  .cta-title {
+    font-size: clamp(2.5rem, 7vw, 6rem);
+    font-weight: 900; text-transform: uppercase;
+    letter-spacing: -.02em; line-height: 1;
+    opacity: 0; transform: translateY(40px);
+  }
+  .cta-title span { color: var(--accent); }
+  .cta-sub {
+    font-size: 1rem; color: var(--grey-light); margin-top: 1.2rem; max-width: 440px;
+    margin-left: auto; margin-right: auto;
+    opacity: 0; transform: translateY(30px);
+  }
+  .cta-btn-row {
+    margin-top: 2.5rem;
+    opacity: 0; transform: translateY(30px);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--grey-dark);
+    padding: 3rem 2.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,.06);
+  }
+  .footer-logo {
+    font-size: 1.2rem; font-weight: 900; letter-spacing: .18em; text-transform: uppercase;
+  }
+  .footer-legal {
+    font-size: .72rem; color: var(--grey-light); line-height: 1.6; max-width: 500px;
+    text-align: center;
+  }
+  .footer-age {
+    font-size: 2rem; font-weight: 900; color: var(--accent);
+  }
+
+  /* ─── AGE GATE ─── */
+  #age-gate {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; text-align: center; padding: 2rem;
+  }
+  .age-logo { font-size: 2rem; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 2rem; }
+  .age-title { font-size: clamp(1.5rem, 5vw, 2.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; }
+  .age-sub { color: var(--grey-light); margin-top: .8rem; font-size: .95rem; line-height: 1.6; max-width: 380px; }
+  .age-btns { display: flex; gap: 1rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center; }
+  .age-yes {
+    background: var(--accent); color: var(--black);
+    padding: .9rem 2.5rem; font-size: .9rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border: none; cursor: pointer; border-radius: 2px; transition: opacity .2s;
+  }
+  .age-yes:hover { opacity: .85; }
+  .age-no {
+    background: transparent; color: var(--grey-light);
+    padding: .9rem 2.5rem; font-size: .9rem; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,.2); cursor: pointer; border-radius: 2px;
+    transition: border-color .2s;
+  }
+  .age-no:hover { border-color: var(--white); color: var(--white); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .flavors-grid { grid-template-columns: repeat(2, 1fr); }
+    .why-grid { grid-template-columns: repeat(3, 1fr); }
+    .how-steps { grid-template-columns: repeat(2, 1fr); }
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 600px) {
+    .flavors-grid { grid-template-columns: 1fr; }
+    .why-grid { grid-template-columns: 1fr; }
+    .how-steps { grid-template-columns: 1fr; }
+    nav { padding: .9rem 1.2rem; }
+    footer { flex-direction: column; text-align: center; }
+    .footer-legal { text-align: center; }
+  }
+
+  /* ─── REDUCED MOTION ─── */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-badge, .hero-title, .hero-sub, .hero-cta-row, .hero-scroll-hint,
+    .avalanche-label, .avalanche-title, .avalanche-desc,
+    .section-label, .section-title,
+    .flavor-card, .why-item, .how-step,
+    .cta-title, .cta-sub, .cta-btn-row {
+      opacity: 1 !important; transform: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- AGE GATE -->
+<div id="age-gate">
+  <div class="age-logo">KLINT</div>
+  <div class="age-title">Вам есть 18 лет?</div>
+  <p class="age-sub">Этот продукт содержит никотин. Вход разрешён только лицам старше 18 лет.</p>
+  <div class="age-btns">
+    <button class="age-yes" onclick="confirmAge()">Да, мне 18+</button>
+    <button class="age-no" onclick="denyAge()">Нет</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">KLINT</div>
+  <ul class="nav-links">
+    <li><a href="#flavors">Вкусы</a></li>
+    <li><a href="#why">Преимущества</a></li>
+    <li><a href="#how">Как пользоваться</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('flavors').scrollIntoView({behavior:'smooth'})">Выбрать вкус</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-badge">Бестабачные никотиновые паучи</div>
+  <h1 class="hero-title">KLINT</h1>
+  <p class="hero-sub">Чистый вкус. Никакого табака. Удовольствие в любом месте.</p>
+  <div class="hero-cta-row">
+    <button class="btn-primary" onclick="document.getElementById('flavors').scrollIntoView({behavior:'smooth'})">Выбрать вкус</button>
+    <button class="btn-outline" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">Как это работает</button>
+  </div>
+  <div class="hero-scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- AVALANCHE -->
+<section id="avalanche">
+  <div class="avalanche-inner">
+    <div class="avalanche-label">Флагман</div>
+    <h2 class="avalanche-title">Avalanche<br>Mint</h2>
+    <p class="avalanche-desc">Взрывная свежесть ледяной мяты — паучи, которые произвели фурор. Лёгкие, дискретные, с мощным вкусом.</p>
+  </div>
+</section>
+
+<!-- FLAVORS -->
+<section id="flavors">
+  <div class="section-header">
+    <div class="section-label">Коллекция</div>
+    <h2 class="section-title">6 вкусов</h2>
+  </div>
+
+  <div class="flavors-grid">
+
+    <!-- 1. Avalanche Mint -->
+    <div class="flavor-card" style="--flavor-color: var(--c-mint);">
+      <div class="flavor-bg"></div>
+      <div class="flavor-visual">
+        <div class="flavor-circle"></div>
+        <div class="flavor-can">🧊</div>
+      </div>
+      <div class="flavor-info">
+        <div class="flavor-name">Avalanche<br>Mint</div>
+        <div class="flavor-sub" style="color: var(--c-mint);">Ледяная мята</div>
+        <div class="flavor-strength">
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot empty"></div>
+          <div class="strength-dot empty"></div>
+          <span class="flavor-mg">6 мг/пауч</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Wild Berry -->
+    <div class="flavor-card" style="--flavor-color: var(--c-berry);">
+      <div class="flavor-bg"></div>
+      <div class="flavor-visual">
+        <div class="flavor-circle"></div>
+        <div class="flavor-can">🫐</div>
+      </div>
+      <div class="flavor-info">
+        <div class="flavor-name">Wild<br>Berry</div>
+        <div class="flavor-sub" style="color: var(--c-berry);">Лесные ягоды</div>
+        <div class="flavor-strength">
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot empty"></div>
+          <div class="strength-dot empty"></div>
+          <div class="strength-dot empty"></div>
+          <span class="flavor-mg">6 мг/пауч</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Citrus Burst -->
+    <div class="flavor-card" style="--flavor-color: var(--c-citrus);">
+      <div class="flavor-bg"></div>
+      <div class="flavor-visual">
+        <div class="flavor-circle"></div>
+        <div class="flavor-can">🍋</div>
+      </div>
+      <div class="flavor-info">
+        <div class="flavor-name">Citrus<br>Burst</div>
+        <div class="flavor-sub" style="color: var(--c-citrus);">Цитрусовый взрыв</div>
+        <div class="flavor-strength">
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot empty"></div>
+          <div class="strength-dot empty"></div>
+          <span class="flavor-mg">6 мг/пауч</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Coffee Kick -->
+    <div class="flavor-card" style="--flavor-color: var(--c-coffee);">
+      <div class="flavor-bg"></div>
+      <div class="flavor-visual">
+        <div class="flavor-circle"></div>
+        <div class="flavor-can">☕</div>
+      </div>
+      <div class="flavor-info">
+        <div class="flavor-name">Coffee<br>Kick</div>
+        <div class="flavor-sub" style="color: var(--c-coffee);">Крепкий кофе</div>
+        <div class="flavor-strength">
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot empty"></div>
+          <span class="flavor-mg">9 мг/пауч</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Melon Fresh -->
+    <div class="flavor-card" style="--flavor-color: var(--c-melon);">
+      <div class="flavor-bg"></div>
+      <div class="flavor-visual">
+        <div class="flavor-circle"></div>
+        <div class="flavor-can">🍈</div>
+      </div>
+      <div class="flavor-info">
+        <div class="flavor-name">Melon<br>Fresh</div>
+        <div class="flavor-sub" style="color: var(--c-melon);">Свежая дыня</div>
+        <div class="flavor-strength">
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot empty"></div>
+          <div class="strength-dot empty"></div>
+          <div class="strength-dot empty"></div>
+          <span class="flavor-mg">6 мг/пауч</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Smooth Tobacco -->
+    <div class="flavor-card" style="--flavor-color: var(--c-tobacco);">
+      <div class="flavor-bg"></div>
+      <div class="flavor-visual">
+        <div class="flavor-circle"></div>
+        <div class="flavor-can">🌿</div>
+      </div>
+      <div class="flavor-info">
+        <div class="flavor-name">Smooth<br>Tobacco</div>
+        <div class="flavor-sub" style="color: var(--c-tobacco);">Мягкий табак</div>
+        <div class="flavor-strength">
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <div class="strength-dot"></div>
+          <span class="flavor-mg">12 мг/пауч</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why">
+  <div class="section-header">
+    <div class="section-label">Преимущества</div>
+    <h2 class="section-title">Почему KLINT</h2>
+  </div>
+  <div class="why-grid">
+    <div class="why-item">
+      <div class="why-num">0%</div>
+      <div class="why-label">Табака в составе</div>
+    </div>
+    <div class="why-item">
+      <div class="why-num">60+</div>
+      <div class="why-label">Минут вкуса</div>
+    </div>
+    <div class="why-item">
+      <div class="why-num">6</div>
+      <div class="why-label">Вкусов в линейке</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="section-header">
+    <div class="section-label">Инструкция</div>
+    <h2 class="section-title">Как пользоваться</h2>
+  </div>
+  <div class="how-steps">
+    <div class="how-step">
+      <div class="step-num">01</div>
+      <div class="step-title">Открой банку</div>
+      <p class="step-desc">Поверни крышку, достань один пауч из банки.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">02</div>
+      <div class="step-title">Помести под губу</div>
+      <p class="step-desc">Положи пауч между верхней губой и дёсной.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">03</div>
+      <div class="step-title">Наслаждайся</div>
+      <p class="step-desc">Удерживай 20–60 минут. Никакого дыма, никаких рук.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">04</div>
+      <div class="step-title">Утилизируй</div>
+      <p class="step-desc">Использованный пауч убери в крышку банки или в мусор.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<section id="cta-strip">
+  <div class="cta-strip-bg"></div>
+  <h2 class="cta-title">Выбери свой<br><span>KLINT</span></h2>
+  <p class="cta-sub">6 вкусов. Один стандарт качества. Без компромиссов.</p>
+  <div class="cta-btn-row">
+    <button class="btn-primary" onclick="document.getElementById('flavors').scrollIntoView({behavior:'smooth'})">Смотреть все вкусы</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">KLINT</div>
+  <div class="footer-legal">
+    Никотин вызывает сильную зависимость. Только для совершеннолетних.<br>
+    Продукт не является табачным изделием и не предназначен для курения.<br>
+    © 2025 KLINT Russia. Все права защищены.
+  </div>
+  <div class="footer-age">18+</div>
+</footer>
+
+<!-- GSAP CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ─── AGE GATE ───
+  function confirmAge() {
+    gsap.to('#age-gate', {
+      opacity: 0, duration: .5, ease: 'power2.in',
+      onComplete: () => {
+        document.getElementById('age-gate').style.display = 'none';
+        initAnimations();
+      }
+    });
+  }
+  function denyAge() {
+    document.getElementById('age-gate').innerHTML =
+      '<div style="text-align:center;padding:2rem;color:#888;font-size:1rem;letter-spacing:.05em;">Доступ ограничен. Этот продукт — только для совершеннолетних.</div>';
+  }
+
+  // ─── ANIMATIONS ───
+  function initAnimations() {
+    const mm = gsap.matchMedia();
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+
+      // HERO
+      const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      heroTl
+        .to('.hero-badge',    { opacity: 1, y: 0, duration: .8 })
+        .to('.hero-title',    { opacity: 1, y: 0, duration: .9 }, '-=.4')
+        .to('.hero-sub',      { opacity: 1, y: 0, duration: .8 }, '-=.5')
+        .to('.hero-cta-row',  { opacity: 1, y: 0, duration: .7 }, '-=.5')
+        .to('.hero-scroll-hint', { opacity: 1, duration: .6 }, '-=.3');
+
+      // AVALANCHE
+      ScrollTrigger.batch(['.avalanche-label', '.avalanche-title', '.avalanche-desc'], {
+        onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: .8, stagger: .15, ease: 'power3.out' }),
+        start: 'top 85%',
+      });
+
+      // SECTION HEADERS
+      gsap.utils.toArray('.section-label').forEach(el => {
+        gsap.to(el, {
+          opacity: 1, y: 0, duration: .7, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+        });
+      });
+      gsap.utils.toArray('.section-title').forEach(el => {
+        gsap.to(el, {
+          opacity: 1, y: 0, duration: .8, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 85%', once: true }
+        });
+      });
+
+      // FLAVOR CARDS — stagger по вхождению
+      ScrollTrigger.batch('.flavor-card', {
+        onEnter: batch => gsap.to(batch, {
+          opacity: 1, y: 0, duration: .7, stagger: .1, ease: 'power3.out'
+        }),
+        start: 'top 90%',
+        once: true,
+      });
+
+      // WHY items
+      gsap.utils.toArray('.why-item').forEach((el, i) => {
+        gsap.to(el, {
+          opacity: 1, y: 0, duration: .7, delay: i * .08, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 85%', once: true }
+        });
+      });
+
+      // HOW steps
+      gsap.utils.toArray('.how-step').forEach((el, i) => {
+        gsap.to(el, {
+          opacity: 1, y: 0, duration: .7, delay: i * .1, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+        });
+      });
+
+      // CTA STRIP
+      const ctaTl = gsap.timeline({
+        scrollTrigger: { trigger: '#cta-strip', start: 'top 80%', once: true }
+      });
+      ctaTl
+        .to('.cta-title', { opacity: 1, y: 0, duration: .85, ease: 'power3.out' })
+        .to('.cta-sub',   { opacity: 1, y: 0, duration: .7,  ease: 'power3.out' }, '-=.4')
+        .to('.cta-btn-row', { opacity: 1, y: 0, duration: .6, ease: 'power3.out' }, '-=.4');
+
+    }); // end matchMedia no-preference
+
+    // reduced-motion: всё сразу visible
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      gsap.set([
+        '.hero-badge','.hero-title','.hero-sub','.hero-cta-row','.hero-scroll-hint',
+        '.avalanche-label','.avalanche-title','.avalanche-desc',
+        '.section-label','.section-title','.flavor-card',
+        '.why-item','.how-step','.cta-title','.cta-sub','.cta-btn-row'
+      ], { opacity: 1, y: 0 });
+    });
+  }
+</script>
+
+</body>
+</html>
