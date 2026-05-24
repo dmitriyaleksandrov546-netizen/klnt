@@ -1,1 +1,464 @@
-placeholder
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KLINT Russia — энергетические напитки</title>
+<style>
+  :root {
+    --mint: #00E5BE;
+    --mint-dim: #00b899;
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #161616;
+    --white: #f5f5f5;
+    --gray: #888;
+    --card-gap: 2rem;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 2.5rem;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,229,190,0.08);
+  }
+  .nav-logo {
+    font-size: 1.6rem; font-weight: 900; letter-spacing: 0.12em;
+    color: var(--mint); text-transform: uppercase;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--gray); text-decoration: none; font-size: 0.85rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    transition: color 0.25s;
+  }
+  .nav-links a:hover { color: var(--mint); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,229,190,0.08) 0%, transparent 70%);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300E5BE' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--mint); margin-bottom: 1.5rem; opacity: 0;
+  }
+  .hero-title {
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    font-weight: 900; letter-spacing: -0.02em;
+    line-height: 1; text-transform: uppercase;
+    margin-bottom: 1.5rem; opacity: 0;
+  }
+  .hero-title span { color: var(--mint); }
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: var(--gray); max-width: 540px; line-height: 1.6;
+    margin-bottom: 3rem; opacity: 0;
+  }
+  .hero-cta {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: var(--mint); color: #000;
+    font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    text-decoration: none; font-size: 0.85rem;
+    border-radius: 2px;
+    transition: background 0.25s, transform 0.2s;
+    opacity: 0;
+  }
+  .hero-cta:hover { background: var(--mint-dim); transform: translateY(-2px); }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase;
+    text-align: center; margin-bottom: 0.75rem;
+  }
+  .section-sub {
+    text-align: center; color: var(--gray); font-size: 1rem;
+    margin-bottom: 3.5rem;
+  }
+  .accent { color: var(--mint); }
+
+  /* ── PRODUCTS ── */
+  #products {
+    padding: 7rem 2rem;
+    background: var(--bg2);
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--card-gap);
+    max-width: 1200px; margin: 0 auto;
+  }
+  .card {
+    background: var(--bg3);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0,229,190,0.1);
+    transition: transform 0.35s cubic-bezier(.25,.46,.45,.94),
+                border-color 0.35s, box-shadow 0.35s;
+    cursor: pointer;
+    opacity: 0; transform: translateY(40px);
+  }
+  .card:hover {
+    transform: translateY(-6px) scale(1.01);
+    border-color: rgba(0,229,190,0.45);
+    box-shadow: 0 20px 60px rgba(0,229,190,0.12);
+  }
+  .card-img-wrap {
+    position: relative; overflow: hidden;
+    height: 280px; background: #0d0d0d;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s cubic-bezier(.25,.46,.45,.94);
+    padding: 1rem;
+  }
+  .card:hover .card-img-wrap img { transform: scale(1.06); }
+  .card-badge {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--mint); color: #000;
+    font-size: 0.65rem; font-weight: 800;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 2px;
+  }
+  .card-body { padding: 1.5rem; }
+  .card-flavor {
+    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--mint); margin-bottom: 0.4rem;
+  }
+  .card-name {
+    font-size: 1.25rem; font-weight: 800; letter-spacing: 0.01em;
+    margin-bottom: 0.5rem;
+  }
+  .card-desc { font-size: 0.85rem; color: var(--gray); line-height: 1.5; margin-bottom: 1.2rem; }
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 1rem;
+  }
+  .card-vol { font-size: 0.75rem; color: var(--gray); letter-spacing: 0.05em; }
+  .card-btn {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--mint);
+    background: rgba(0,229,190,0.08);
+    border: 1px solid rgba(0,229,190,0.25);
+    padding: 6px 14px; border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    text-decoration: none;
+  }
+  .card-btn:hover { background: rgba(0,229,190,0.18); border-color: var(--mint); }
+
+  /* ── ABOUT ── */
+  #about {
+    padding: 7rem 2rem;
+    background: var(--bg);
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; max-width: 1100px; width: 100%;
+    align-items: center;
+  }
+  .about-text h2 { font-size: clamp(1.8rem,4vw,3rem); font-weight:900; margin-bottom:1.2rem; }
+  .about-text p { color: var(--gray); line-height: 1.8; margin-bottom: 1rem; font-size: 0.95rem; }
+  .stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .stat-box {
+    background: var(--bg3);
+    border: 1px solid rgba(0,229,190,0.1);
+    border-radius: 10px;
+    padding: 1.5rem;
+    opacity: 0; transform: translateY(20px);
+  }
+  .stat-num {
+    font-size: 2.5rem; font-weight: 900; color: var(--mint);
+    line-height: 1; margin-bottom: 0.3rem;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--gray); letter-spacing: 0.06em; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 3rem 2rem;
+    background: var(--bg2);
+    border-top: 1px solid rgba(0,229,190,0.08);
+    text-align: center;
+  }
+  .footer-logo { font-size: 1.4rem; font-weight:900; color: var(--mint); letter-spacing:0.12em; margin-bottom:0.5rem; }
+  footer p { color: var(--gray); font-size: 0.8rem; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    .hero { padding: 6rem 1.25rem 3rem; }
+    #products { padding: 4rem 1.25rem; }
+    .products-grid { grid-template-columns: 1fr; }
+    .card-img-wrap { height: 240px; }
+    #about { padding: 4rem 1.25rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-eyebrow, .hero-title, .hero-sub, .hero-cta,
+    .card, .stat-box { opacity: 1 !important; transform: none !important; }
+    .card, .card-img-wrap img { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">KLINT</div>
+  <ul class="nav-links">
+    <li><a href="#products">Линейка</a></li>
+    <li><a href="#about">О бренде</a></li>
+    <li><a href="#contact">Контакты</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Энергия нового уровня</p>
+  <h1 class="hero-title">KLINT<br><span>Russia</span></h1>
+  <p class="hero-sub">Скандинавский энергетик без сахара. 7 вкусов — чистая энергия для тех, кто движется вперёд.</p>
+  <a href="#products" class="hero-cta">Смотреть вкусы</a>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <h2 class="section-title">Линейка <span class="accent">вкусов</span></h2>
+  <p class="section-sub">7 уникальных сочетаний — выбери своё</p>
+  <div class="products-grid">
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <span class="card-badge">New</span>
+        <img src="uploads/Tropical.png" alt="Tropical" onerror="this.style.display='none'">
+      </div>
+      <div class="card-body">
+        <div class="card-flavor">Tropical</div>
+        <div class="card-name">Тропический</div>
+        <div class="card-desc">Взрыв манго, маракуйи и ананаса — солнечная энергия в каждом глотке.</div>
+        <div class="card-footer">
+          <span class="card-vol">250 мл · 0 сахара</span>
+          <a class="card-btn" href="#contact">Заказать</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="uploads/Citrus.png" alt="Citrus" onerror="this.style.display='none'">
+      </div>
+      <div class="card-body">
+        <div class="card-flavor">Citrus</div>
+        <div class="card-name">Цитрусовый</div>
+        <div class="card-desc">Свежесть лимона и грейпфрута. Яркий старт утра.</div>
+        <div class="card-footer">
+          <span class="card-vol">250 мл · 0 сахара</span>
+          <a class="card-btn" href="#contact">Заказать</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="uploads/Berry.png" alt="Berry" onerror="this.style.display='none'">
+      </div>
+      <div class="card-body">
+        <div class="card-flavor">Berry</div>
+        <div class="card-name">Ягодный</div>
+        <div class="card-desc">Малина, черника и клубника — насыщенный ягодный микс.</div>
+        <div class="card-footer">
+          <span class="card-vol">250 мл · 0 сахара</span>
+          <a class="card-btn" href="#contact">Заказать</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="uploads/Mint.png" alt="Mint" onerror="this.style.display='none'">
+      </div>
+      <div class="card-body">
+        <div class="card-flavor">Mint</div>
+        <div class="card-name">Мята</div>
+        <div class="card-desc">Ледяная свежесть мяты. Концентрация и хладнокровие.</div>
+        <div class="card-footer">
+          <span class="card-vol">250 мл · 0 сахара</span>
+          <a class="card-btn" href="#contact">Заказать</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="uploads/Watermelon.png" alt="Watermelon" onerror="this.style.display='none'">
+      </div>
+      <div class="card-body">
+        <div class="card-flavor">Watermelon</div>
+        <div class="card-name">Арбуз</div>
+        <div class="card-desc">Летний арбуз с лёгкой кислинкой. Освежает мгновенно.</div>
+        <div class="card-footer">
+          <span class="card-vol">250 мл · 0 сахара</span>
+          <a class="card-btn" href="#contact">Заказать</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="uploads/Peach.png" alt="Peach" onerror="this.style.display='none'">
+      </div>
+      <div class="card-body">
+        <div class="card-flavor">Peach</div>
+        <div class="card-name">Персик</div>
+        <div class="card-desc">Спелый персик и нектарин — мягкая энергия без резкости.</div>
+        <div class="card-footer">
+          <span class="card-vol">250 мл · 0 сахара</span>
+          <a class="card-btn" href="#contact">Заказать</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="uploads/Original.png" alt="Original" onerror="this.style.display='none'">
+      </div>
+      <div class="card-body">
+        <div class="card-flavor">Original</div>
+        <div class="card-name">Оригинальный</div>
+        <div class="card-desc">Классический скандинавский KLINT — базовый вкус, максимум энергии.</div>
+        <div class="card-footer">
+          <span class="card-vol">250 мл · 0 сахара</span>
+          <a class="card-btn" href="#contact">Заказать</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <h2>Скандинавский<br><span class="accent">стандарт</span></h2>
+      <p>KLINT — энергетический напиток из Скандинавии. Без сахара, без лишнего. Только чистая энергия, которая работает.</p>
+      <p>Натуральный кофеин, витамины группы B, электролиты. Формула, которой доверяют спортсмены и профессионалы по всей Европе.</p>
+    </div>
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-num">0</div>
+        <div class="stat-label">граммов сахара</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">7</div>
+        <div class="stat-label">вкусов</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">80</div>
+        <div class="stat-label">мг кофеина</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">250</div>
+        <div class="stat-label">мл / банка</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" style="padding:5rem 2rem; background:var(--bg3); text-align:center;">
+  <h2 class="section-title">Стать <span class="accent">дистрибьютором</span></h2>
+  <p style="color:var(--gray);max-width:480px;margin:0.75rem auto 2.5rem;font-size:0.95rem;line-height:1.7;">
+    Ищем партнёров по всей России. Напишите нам — обсудим условия.
+  </p>
+  <a href="mailto:info@klint.ru" class="hero-cta" style="opacity:1;">Написать нам</a>
+</section>
+
+<footer>
+  <div class="footer-logo">KLINT</div>
+  <p>© 2025 KLINT Russia. Все права защищены.</p>
+</footer>
+
+<!-- GSAP + ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero reveal
+  const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  heroTl
+    .to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.7, delay: 0.3 }, 'start')
+    .to('.hero-title',   { opacity: 1, y: 0, duration: 0.9 }, 'start+=0.2')
+    .to('.hero-sub',     { opacity: 1, y: 0, duration: 0.8 }, 'start+=0.45')
+    .to('.hero-cta',     { opacity: 1, y: 0, duration: 0.7 }, 'start+=0.65');
+
+  // Cards reveal
+  gsap.utils.toArray('.card').forEach((card, i) => {
+    gsap.to(card, {
+      scrollTrigger: {
+        trigger: card,
+        start: 'top 88%',
+        toggleActions: 'play none none none',
+      },
+      opacity: 1, y: 0,
+      duration: 0.65,
+      delay: (i % 3) * 0.08,
+      ease: 'power3.out',
+    });
+  });
+
+  // Stat boxes reveal
+  gsap.utils.toArray('.stat-box').forEach((box, i) => {
+    gsap.to(box, {
+      scrollTrigger: { trigger: box, start: 'top 85%' },
+      opacity: 1, y: 0,
+      duration: 0.55,
+      delay: i * 0.1,
+      ease: 'power2.out',
+    });
+  });
+
+  // Parallax hero bg
+  gsap.to('.hero', {
+    backgroundPositionY: '30%',
+    ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
+  });
+</script>
+</body>
+</html>
