@@ -1,955 +1,589 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KLINT Russia — никотиновые подушечки</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --c-bg: #0a0a0a;
-      --c-surface: #111111;
-      --c-surface2: #1a1a1a;
-      --c-border: #222222;
-      --c-text: #f0f0f0;
-      --c-text-muted: #888888;
-      --c-accent: #00e5ff;
-      --c-accent2: #00ff88;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KLINT — Nicotine Pouches</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0A0A0A;
+    --white: #FFFFFF;
+    --gray-100: #F5F5F5;
+    --gray-200: #E8E8E8;
+    --gray-500: #9B9B9B;
+    --gray-800: #2A2A2A;
+    --accent: #1DB8AA;
+    --freeze: #00B8A9;
+    --polar: #2196F3;
+    --berry: #7B1FA2;
+    --citrus: #FF9800;
+    --tropical: #4CAF50;
+    --menthol: #00BCD4;
+    --classic: #607D8B;
+  }
 
-      /* Per-flavor colors */
-      --cola-lime:    #b8e040;
-      --arctic-mint:  #7de8ff;
-      --freeze-mint:  #b0f4ff;
-      --apple-mint:   #6ddc9a;
-      --alaskan-mint: #3ac8e0;
-      --polar-mint:   #82d8ff;
-      --avalanche:    #ffffff;
-    }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
 
-    html { scroll-behavior: auto; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--black);
+    color: var(--white);
+    overflow-x: hidden;
+  }
 
-    body {
-      background: var(--c-bg);
-      color: var(--c-text);
-      font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
-    }
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, transparent 100%);
+    backdrop-filter: blur(8px);
+  }
+  .nav-logo {
+    font-size: 22px; font-weight: 900; letter-spacing: 0.12em;
+    color: var(--white); text-transform: uppercase;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-cta {
+    background: var(--accent); color: var(--black);
+    padding: 10px 24px; border-radius: 100px;
+    font-weight: 700; font-size: 13px; letter-spacing: 0.06em;
+    text-decoration: none; text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
 
-    /* ─── SCROLLBAR ─── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--c-bg); }
-    ::-webkit-scrollbar-thumb { background: var(--c-accent); border-radius: 2px; }
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(29,184,170,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 24px; opacity: 0;
+  }
+  .hero-title {
+    font-size: clamp(52px, 10vw, 130px);
+    font-weight: 900; line-height: 0.92;
+    letter-spacing: -0.03em; text-transform: uppercase;
+    margin-bottom: 32px; opacity: 0;
+  }
+  .hero-title em { font-style: normal; color: var(--accent); }
+  .hero-sub {
+    font-size: clamp(15px, 2vw, 19px); font-weight: 400;
+    color: var(--gray-500); max-width: 480px; line-height: 1.6;
+    margin-bottom: 48px; opacity: 0;
+  }
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; opacity: 0; }
+  .btn-primary {
+    background: var(--accent); color: var(--black);
+    padding: 16px 40px; border-radius: 100px;
+    font-weight: 700; font-size: 14px; letter-spacing: 0.08em;
+    text-decoration: none; text-transform: uppercase;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-2px); }
+  .btn-secondary {
+    background: transparent; color: var(--white);
+    padding: 16px 40px; border-radius: 100px;
+    font-weight: 600; font-size: 14px; letter-spacing: 0.08em;
+    text-decoration: none; text-transform: uppercase;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--white); transform: translateY(-2px); }
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray-500);
+  }
+  .hero-scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
 
-    /* ─── HEADER ─── */
-    header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 40px;
-      background: rgba(10,10,10,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--c-border);
-    }
-    .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px;
-      letter-spacing: 4px;
-      color: var(--c-accent);
-    }
-    nav a {
-      color: var(--c-text-muted);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-left: 32px;
-      transition: color .2s;
-    }
-    nav a:hover { color: var(--c-text); }
+  /* ─── SECTION COMMONS ─── */
+  section { padding: 120px 40px; }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: clamp(32px, 5vw, 60px); font-weight: 900;
+    letter-spacing: -0.02em; text-transform: uppercase;
+    line-height: 1; margin-bottom: 48px;
+  }
 
-    /* ─── HERO ─── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 120px 24px 80px;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 70% 60% at 20% 40%, rgba(0,229,255,.12) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 80% 60%, rgba(0,255,136,.08) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    .hero-eyebrow {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--c-accent);
-      margin-bottom: 20px;
-      opacity: 0;
-    }
-    .hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(72px, 14vw, 180px);
-      line-height: .92;
-      letter-spacing: 2px;
-      margin-bottom: 28px;
-      opacity: 0;
-    }
-    .hero h1 span { color: var(--c-accent); }
-    .hero-sub {
-      font-size: clamp(15px, 2.5vw, 20px);
-      font-weight: 300;
-      color: var(--c-text-muted);
-      max-width: 520px;
-      line-height: 1.6;
-      margin-bottom: 44px;
-      opacity: 0;
-    }
-    .hero-cta {
-      display: inline-flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-      opacity: 0;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 32px;
-      border-radius: 4px;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      transition: transform .2s, box-shadow .2s;
-    }
-    .btn:hover { transform: translateY(-2px); }
-    .btn-primary {
-      background: var(--c-accent);
-      color: #000;
-      box-shadow: 0 0 24px rgba(0,229,255,.3);
-    }
-    .btn-primary:hover { box-shadow: 0 0 40px rgba(0,229,255,.5); }
-    .btn-outline {
-      background: transparent;
-      color: var(--c-text);
-      border: 1px solid var(--c-border);
-    }
-    .btn-outline:hover { border-color: var(--c-accent); color: var(--c-accent); }
+  /* ─── ABOUT ─── */
+  .about { background: var(--black); }
+  .about-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .about-text p {
+    font-size: 17px; line-height: 1.75; color: var(--gray-500);
+    margin-bottom: 20px;
+  }
+  .about-text p strong { color: var(--white); }
+  .about-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+  }
+  .stat { padding: 28px; background: var(--gray-800); border-radius: 16px; }
+  .stat-num {
+    font-size: 40px; font-weight: 900; letter-spacing: -0.03em;
+    color: var(--accent); line-height: 1;
+  }
+  .stat-label { font-size: 12px; color: var(--gray-500); margin-top: 8px; letter-spacing: 0.05em; }
 
-    .hero-scroll-hint {
-      position: absolute;
-      bottom: 36px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      color: var(--c-text-muted);
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      opacity: 0;
-    }
-    .scroll-line {
-      width: 1px;
-      height: 40px;
-      background: linear-gradient(to bottom, var(--c-accent), transparent);
-    }
+  /* ─── CATALOG ─── */
+  .catalog { background: var(--gray-800); }
+  .catalog-header { max-width: 1200px; margin: 0 auto 64px; }
+  .cards-grid {
+    max-width: 1200px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .card {
+    border-radius: 20px; overflow: hidden;
+    background: var(--black);
+    position: relative;
+    display: flex; flex-direction: column;
+    opacity: 0; transform: translateY(50px);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    cursor: default;
+  }
+  .card:hover {
+    transform: translateY(-6px) scale(1.015);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+  .card-img {
+    width: 100%; aspect-ratio: 4/5;
+    object-fit: cover; display: block;
+  }
+  .card-img-placeholder {
+    width: 100%; aspect-ratio: 4/5;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px;
+  }
+  .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .card-flavor {
+    font-size: 20px; font-weight: 800; letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  .card-desc { font-size: 14px; color: var(--gray-500); line-height: 1.6; flex: 1; }
+  .card-meta {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 6px 14px; border-radius: 100px;
+    background: var(--gray-800);
+  }
+  .badge-nic { background: rgba(29,184,170,0.15); color: var(--accent); }
+  .badge-str { background: rgba(255,255,255,0.08); color: var(--gray-500); }
+  .card-accent-bar {
+    height: 4px; width: 100%;
+    margin-top: auto;
+  }
 
-    /* ─── SECTION ─── */
-    section { padding: 100px 24px; }
-    .section-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--c-accent);
-      margin-bottom: 16px;
-    }
-    .section-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(40px, 7vw, 80px);
-      letter-spacing: 1px;
-      line-height: 1;
-      margin-bottom: 24px;
-    }
-    .section-sub {
-      font-size: 16px;
-      color: var(--c-text-muted);
-      max-width: 520px;
-      line-height: 1.7;
-    }
+  /* ─── HOW IT WORKS ─── */
+  .how { background: var(--black); }
+  .how-inner { max-width: 1200px; margin: 0 auto; }
+  .steps {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 32px; margin-top: 48px;
+  }
+  .step { opacity: 0; transform: translateY(40px); }
+  .step-num {
+    font-size: 52px; font-weight: 900; color: var(--accent); opacity: 0.25;
+    line-height: 1; margin-bottom: 16px; letter-spacing: -0.04em;
+  }
+  .step-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .step-desc { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
 
-    /* ─── FLAVORS ─── */
-    #flavors { background: var(--c-surface); }
-    .flavors-header {
-      text-align: center;
-      max-width: 640px;
-      margin: 0 auto 64px;
-    }
-    .flavors-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+  /* ─── CTA ─── */
+  .cta-section {
+    background: linear-gradient(135deg, rgba(29,184,170,0.15) 0%, transparent 60%);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    text-align: center; padding: 140px 24px;
+  }
+  .cta-inner { max-width: 640px; margin: 0 auto; }
+  .cta-title {
+    font-size: clamp(36px, 6vw, 72px); font-weight: 900;
+    letter-spacing: -0.03em; text-transform: uppercase;
+    line-height: 0.95; margin-bottom: 24px;
+  }
+  .cta-sub { font-size: 16px; color: var(--gray-500); line-height: 1.65; margin-bottom: 48px; }
+  .cta-link {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--white); color: var(--black);
+    padding: 18px 48px; border-radius: 100px;
+    font-weight: 800; font-size: 15px; letter-spacing: 0.06em;
+    text-decoration: none; text-transform: uppercase;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .cta-link:hover { opacity: 0.9; transform: translateY(-3px); }
+  .tg-icon { width: 22px; height: 22px; }
 
-    .flavor-card {
-      background: var(--c-surface2);
-      border: 1px solid var(--c-border);
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-      transition: transform .3s, box-shadow .3s;
-      opacity: 0;
-      transform: translateY(40px);
-    }
-    .flavor-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 60px rgba(0,0,0,.4);
-    }
-    .flavor-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      transition: opacity .3s;
-      border-radius: 12px;
-      pointer-events: none;
-    }
-    .flavor-card:hover::before { opacity: 1; }
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 40px; text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 12px; color: var(--gray-500);
+    letter-spacing: 0.04em;
+  }
+  footer strong { color: var(--white); }
 
-    /* accent stripe top */
-    .flavor-stripe {
-      height: 4px;
-      width: 100%;
-    }
+  /* ─── MOBILE ─── */
+  @media (max-width: 900px) {
+    nav { padding: 16px 20px; }
+    section { padding: 80px 20px; }
+    .about-inner { grid-template-columns: 1fr; gap: 48px; }
+    .about-stats { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    nav { padding: 14px 16px; }
+    .nav-logo { font-size: 18px; }
+    .nav-cta { padding: 8px 18px; font-size: 12px; }
+    section { padding: 64px 16px; }
+    .hero { padding: 100px 16px 60px; }
+    .hero-actions { flex-direction: column; align-items: center; }
+    .btn-primary, .btn-secondary { width: 100%; text-align: center; }
+    .about-stats { grid-template-columns: 1fr; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .cta-section { padding: 80px 16px; }
+    footer { padding: 28px 16px; }
+  }
 
-    /* photo */
-    .flavor-photo {
-      width: 100%;
-      height: 260px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0d0d0d;
-      position: relative;
-    }
-    .flavor-photo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      transition: transform .4s ease;
-    }
-    .flavor-card:hover .flavor-photo img {
-      transform: scale(1.04);
-    }
-    /* fallback gradient shown when img missing */
-    .flavor-photo .img-fallback {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 18px;
-      letter-spacing: 3px;
-      color: rgba(255,255,255,.2);
-      z-index: 0;
-    }
-    .flavor-photo img { position: relative; z-index: 1; }
-
-    .flavor-body { padding: 24px; }
-    .flavor-name {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 26px;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-    }
-    .flavor-desc {
-      font-size: 13px;
-      color: var(--c-text-muted);
-      line-height: 1.6;
-      margin-bottom: 20px;
-      min-height: 44px;
-    }
-    .flavor-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .flavor-strength {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .strength-label {
-      font-size: 10px;
-      color: var(--c-text-muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-    .strength-dots {
-      display: flex;
-      gap: 4px;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--c-border);
-    }
-    .dot.active { background: var(--c-accent); }
-    .flavor-mg {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--c-text-muted);
-      letter-spacing: 1px;
-    }
-
-    /* per-flavor accents */
-    .card-cola-lime .flavor-stripe   { background: var(--cola-lime); }
-    .card-cola-lime .dot.active      { background: var(--cola-lime); }
-    .card-cola-lime .flavor-photo .img-fallback { background: radial-gradient(circle at 50% 40%, rgba(184,224,64,.25), transparent 70%); }
-
-    .card-arctic-mint .flavor-stripe  { background: var(--arctic-mint); }
-    .card-arctic-mint .dot.active     { background: var(--arctic-mint); }
-    .card-arctic-mint .flavor-photo .img-fallback { background: radial-gradient(circle at 50% 40%, rgba(125,232,255,.25), transparent 70%); }
-
-    .card-freeze-mint .flavor-stripe  { background: var(--freeze-mint); }
-    .card-freeze-mint .dot.active     { background: var(--freeze-mint); }
-    .card-freeze-mint .flavor-photo .img-fallback { background: radial-gradient(circle at 50% 40%, rgba(176,244,255,.25), transparent 70%); }
-
-    .card-apple-mint .flavor-stripe   { background: var(--apple-mint); }
-    .card-apple-mint .dot.active      { background: var(--apple-mint); }
-    .card-apple-mint .flavor-photo .img-fallback { background: radial-gradient(circle at 50% 40%, rgba(109,220,154,.25), transparent 70%); }
-
-    .card-alaskan-mint .flavor-stripe { background: var(--alaskan-mint); }
-    .card-alaskan-mint .dot.active    { background: var(--alaskan-mint); }
-    .card-alaskan-mint .flavor-photo .img-fallback { background: radial-gradient(circle at 50% 40%, rgba(58,200,224,.25), transparent 70%); }
-
-    .card-polar-mint .flavor-stripe   { background: var(--polar-mint); }
-    .card-polar-mint .dot.active      { background: var(--polar-mint); }
-    .card-polar-mint .flavor-photo .img-fallback { background: radial-gradient(circle at 50% 40%, rgba(130,216,255,.25), transparent 70%); }
-
-    .card-avalanche .flavor-stripe    { background: var(--avalanche); }
-    .card-avalanche .dot.active       { background: var(--avalanche); }
-    .card-avalanche .flavor-photo .img-fallback { background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.15), transparent 70%); }
-
-    /* ─── ABOUT ─── */
-    #about {
-      background: var(--c-bg);
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-    .about-features {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      margin-top: 40px;
-    }
-    .feature {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      opacity: 0;
-      transform: translateX(-30px);
-    }
-    .feature-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: rgba(0,229,255,.08);
-      border: 1px solid rgba(0,229,255,.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-    .feature-text h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .feature-text p {
-      font-size: 13px;
-      color: var(--c-text-muted);
-      line-height: 1.6;
-    }
-    .about-visual {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-    }
-    .about-badge {
-      width: 320px;
-      height: 320px;
-      border-radius: 50%;
-      border: 1px solid var(--c-border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 8px;
-      background: radial-gradient(circle at 50%, rgba(0,229,255,.06), transparent 70%);
-    }
-    .about-badge .big-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 96px;
-      color: var(--c-accent);
-      line-height: 1;
-    }
-    .about-badge .big-label {
-      font-size: 13px;
-      color: var(--c-text-muted);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    /* ─── CTA BANNER ─── */
-    #cta {
-      background: linear-gradient(135deg, rgba(0,229,255,.08) 0%, rgba(0,255,136,.05) 100%);
-      border-top: 1px solid var(--c-border);
-      border-bottom: 1px solid var(--c-border);
-      text-align: center;
-    }
-    .cta-inner { max-width: 640px; margin: 0 auto; }
-    .cta-inner .section-title { margin-bottom: 16px; }
-    .cta-inner .section-sub { margin: 0 auto 40px; text-align: center; }
-    .cta-buttons {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    /* ─── FOOTER ─── */
-    footer {
-      background: var(--c-surface);
-      border-top: 1px solid var(--c-border);
-      padding: 48px 40px 32px;
-    }
-    .footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
-    .footer-brand .logo { font-size: 24px; display: block; margin-bottom: 8px; }
-    .footer-brand p {
-      font-size: 12px;
-      color: var(--c-text-muted);
-      max-width: 240px;
-      line-height: 1.6;
-    }
-    .footer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .footer-links a {
-      font-size: 13px;
-      color: var(--c-text-muted);
-      text-decoration: none;
-      transition: color .2s;
-    }
-    .footer-links a:hover { color: var(--c-accent); }
-    .footer-tg {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,229,255,.08);
-      border: 1px solid rgba(0,229,255,.2);
-      border-radius: 8px;
-      padding: 12px 20px;
-      color: var(--c-accent);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      transition: background .2s;
-    }
-    .footer-tg:hover { background: rgba(0,229,255,.15); }
-    .footer-bottom {
-      max-width: 1200px;
-      margin: 32px auto 0;
-      padding-top: 20px;
-      border-top: 1px solid var(--c-border);
-      font-size: 12px;
-      color: var(--c-text-muted);
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .age-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      border: 1px solid var(--c-text-muted);
-      border-radius: 50%;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--c-text-muted);
-      margin-right: 8px;
-    }
-
-    /* ─── RESPONSIVE ─── */
-    @media (max-width: 900px) {
-      .about-grid { grid-template-columns: 1fr; gap: 48px; }
-      .about-visual { order: -1; }
-    }
-    @media (max-width: 640px) {
-      header { padding: 14px 20px; }
-      nav { display: none; }
-      section { padding: 72px 16px; }
-      .hero { padding: 100px 16px 60px; }
-      .flavors-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
-      .flavor-photo { height: 180px; }
-      .flavor-name { font-size: 20px; }
-      footer { padding: 40px 20px 24px; }
-      .about-badge { width: 240px; height: 240px; }
-      .about-badge .big-num { font-size: 72px; }
-    }
-    @media (max-width: 400px) {
-      .flavors-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ─── REDUCED MOTION ─── */
-    @media (prefers-reduced-motion: reduce) {
-      .flavor-card, .feature, .hero-eyebrow,
-      .hero h1, .hero-sub, .hero-cta, .hero-scroll-hint,
-      .about-visual { opacity: 1 !important; transform: none !important; }
-    }
-  </style>
+  /* ─── REDUCED MOTION ─── */
+  @media (prefers-reduced-motion: reduce) {
+    .card, .step, .hero-eyebrow, .hero-title, .hero-sub, .hero-actions { opacity: 1; transform: none; }
+  }
+</style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="logo">KLINT</div>
-  <nav>
-    <a href="#flavors">Вкусы</a>
-    <a href="#about">О продукте</a>
-    <a href="#cta">Купить</a>
-  </nav>
-</header>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">KL<span>I</span>NT</div>
+  <a class="nav-cta" href="https://t.me/klint_russia" target="_blank" rel="noopener">Telegram</a>
+</nav>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="hero">
   <div class="hero-bg"></div>
-  <p class="hero-eyebrow">Официальный представитель в России</p>
-  <h1>KLINT<br><span>Russia</span></h1>
-  <p class="hero-sub">Никотиновые подушечки без табака. Свежесть без дыма — в любом месте, в любое время.</p>
-  <div class="hero-cta">
-    <a href="#flavors" class="btn btn-primary">Выбрать вкус</a>
-    <a href="https://t.me/klint_russia" target="_blank" rel="noopener" class="btn btn-outline">Telegram-канал</a>
+  <p class="hero-eyebrow">Swedish Quality · Nicotine Pouches</p>
+  <h1 class="hero-title">Free Your<br><em>Taste</em></h1>
+  <p class="hero-sub">Никотин без табака. Шведское качество. Семь вкусов для тех, кто выбирает стиль.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#catalog">Каталог вкусов</a>
+    <a class="btn-secondary" href="https://t.me/klint_russia" target="_blank" rel="noopener">@klint_russia</a>
   </div>
-  <div class="hero-scroll-hint">
-    <span>Scroll</span>
-    <div class="scroll-line"></div>
-  </div>
-</section>
-
-<!-- FLAVORS -->
-<section id="flavors">
-  <div class="flavors-header">
-    <p class="section-label">Линейка вкусов</p>
-    <h2 class="section-title">7 ВКУСОВ</h2>
-    <p class="section-sub">Каждая банка — это сочетание интенсивного вкуса и точно выверенного уровня никотина.</p>
-  </div>
-  <div class="flavors-grid">
-
-    <!-- 1. Cola Lime -->
-    <div class="flavor-card card-cola-lime">
-      <div class="flavor-stripe"></div>
-      <div class="flavor-photo">
-        <div class="img-fallback">COLA LIME</div>
-        <img src="IMG_9113.JPG" alt="Cola Lime — KLINT Russia" loading="lazy"
-             onerror="this.style.display='none'">
-      </div>
-      <div class="flavor-body">
-        <div class="flavor-name">Cola Lime</div>
-        <div class="flavor-desc">Освежающее сочетание колы и лайма. Яркий, бодрящий вкус.</div>
-        <div class="flavor-meta">
-          <div class="flavor-strength">
-            <span class="strength-label">Крепость</span>
-            <div class="strength-dots">
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <span class="flavor-mg">6 мг</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. Arctic Mint -->
-    <div class="flavor-card card-arctic-mint">
-      <div class="flavor-stripe"></div>
-      <div class="flavor-photo">
-        <div class="img-fallback">ARCTIC MINT</div>
-        <img src="IMG_9117.JPG" alt="Arctic Mint — KLINT Russia" loading="lazy"
-             onerror="this.style.display='none'">
-      </div>
-      <div class="flavor-body">
-        <div class="flavor-name">Arctic Mint</div>
-        <div class="flavor-desc">Арктическая мята. Чистая свежесть со льдом.</div>
-        <div class="flavor-meta">
-          <div class="flavor-strength">
-            <span class="strength-label">Крепость</span>
-            <div class="strength-dots">
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <span class="flavor-mg">14 мг</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. Freeze Mint -->
-    <div class="flavor-card card-freeze-mint">
-      <div class="flavor-stripe"></div>
-      <div class="flavor-photo">
-        <div class="img-fallback">FREEZE MINT</div>
-        <img src="IMG_9119.JPG" alt="Freeze Mint — KLINT Russia" loading="lazy"
-             onerror="this.style.display='none'">
-      </div>
-      <div class="flavor-body">
-        <div class="flavor-name">Freeze Mint</div>
-        <div class="flavor-desc">Интенсивный холод. Максимальный охлаждающий эффект.</div>
-        <div class="flavor-meta">
-          <div class="flavor-strength">
-            <span class="strength-label">Крепость</span>
-            <div class="strength-dots">
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <span class="flavor-mg">18 мг</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. Apple Mint -->
-    <div class="flavor-card card-apple-mint">
-      <div class="flavor-stripe"></div>
-      <div class="flavor-photo">
-        <div class="img-fallback">APPLE MINT</div>
-        <img src="IMG_9145.JPG" alt="Apple Mint — KLINT Russia" loading="lazy"
-             onerror="this.style.display='none'">
-      </div>
-      <div class="flavor-body">
-        <div class="flavor-name">Apple Mint</div>
-        <div class="flavor-desc">Сочное яблоко с мятным послевкусием. Свежо и фруктово.</div>
-        <div class="flavor-meta">
-          <div class="flavor-strength">
-            <span class="strength-label">Крепость</span>
-            <div class="strength-dots">
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <span class="flavor-mg">6 мг</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. Alaskan Mint -->
-    <div class="flavor-card card-alaskan-mint">
-      <div class="flavor-stripe"></div>
-      <div class="flavor-photo">
-        <div class="img-fallback">ALASKAN MINT</div>
-        <img src="IMG_9151.JPG" alt="Alaskan Mint — KLINT Russia" loading="lazy"
-             onerror="this.style.display='none'">
-      </div>
-      <div class="flavor-body">
-        <div class="flavor-name">Alaskan Mint</div>
-        <div class="flavor-desc">Мята с аляскинским холодом. Стойкий освежающий эффект.</div>
-        <div class="flavor-meta">
-          <div class="flavor-strength">
-            <span class="strength-label">Крепость</span>
-            <div class="strength-dots">
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <span class="flavor-mg">14 мг</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 6. Polar Mint -->
-    <div class="flavor-card card-polar-mint">
-      <div class="flavor-stripe"></div>
-      <div class="flavor-photo">
-        <div class="img-fallback">POLAR MINT</div>
-        <img src="IMG_9155.JPG" alt="Polar Mint — KLINT Russia" loading="lazy"
-             onerror="this.style.display='none'">
-      </div>
-      <div class="flavor-body">
-        <div class="flavor-name">Polar Mint</div>
-        <div class="flavor-desc">Полярная мята. Лёгкость и прохлада с мягким никотиновым эффектом.</div>
-        <div class="flavor-meta">
-          <div class="flavor-strength">
-            <span class="strength-label">Крепость</span>
-            <div class="strength-dots">
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <span class="flavor-mg">12 мг</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 7. Avalanche Mint -->
-    <div class="flavor-card card-avalanche">
-      <div class="flavor-stripe"></div>
-      <div class="flavor-photo">
-        <div class="img-fallback">AVALANCHE MINT</div>
-        <img src="IMG_9159.JPG" alt="Avalanche Mint — KLINT Russia" loading="lazy"
-             onerror="this.style.display='none'">
-      </div>
-      <div class="flavor-body">
-        <div class="flavor-name">Avalanche Mint</div>
-        <div class="flavor-desc">Лавина мяты. Самый интенсивный вкус линейки.</div>
-        <div class="flavor-meta">
-          <div class="flavor-strength">
-            <span class="strength-label">Крепость</span>
-            <div class="strength-dots">
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-              <div class="dot active"></div>
-            </div>
-          </div>
-          <span class="flavor-mg">25 мг</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  <div class="hero-scroll"><div class="hero-scroll-line"></div>Scroll</div>
 </section>
 
 <!-- ABOUT -->
-<section id="about">
-  <div class="about-grid">
-    <div>
-      <p class="section-label">О продукте</p>
-      <h2 class="section-title">БЕЗ ДЫМА.<br>БЕЗ ПАРА.</h2>
-      <p class="section-sub">KLINT — никотиновые подушечки из Швеции. Не содержат табака. Дискретно. Везде.</p>
-      <div class="about-features">
-        <div class="feature">
-          <div class="feature-icon">🧊</div>
-          <div class="feature-text">
-            <h3>Без табака</h3>
-            <p>Только никотин и натуральные ароматизаторы — никакого дыма и пепла.</p>
-          </div>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">🔇</div>
-          <div class="feature-text">
-            <h3>Абсолютно дискретно</h3>
-            <p>Под губу — и никто не знает. Работает в офисе, транспорте, на встречах.</p>
-          </div>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">⚡</div>
-          <div class="feature-text">
-            <h3>Быстрое действие</h3>
-            <p>Никотин всасывается через слизистую уже через несколько минут.</p>
-          </div>
+<section class="about" id="about">
+  <div class="about-inner">
+    <div class="about-text">
+      <p class="section-label">О бренде</p>
+      <h2 class="section-title">Что такое<br>KLINT?</h2>
+      <p>KLINT — шведские никотиновые подушечки <strong>без табака</strong>. Кладёшь под верхнюю губу, никакого дыма и пепла — только чистый никотин и вкус.</p>
+      <p>Компактный формат slim позволяет использовать подушечки в любом месте — на работе, в транспорте, на встречах. <strong>Дискретно. Стильно. Эффективно.</strong></p>
+      <p>Производится по шведским стандартам качества — строгий контроль ингредиентов и дозировки.</p>
+    </div>
+    <div class="about-stats">
+      <div class="stat"><div class="stat-num">0</div><div class="stat-label">Содержание табака</div></div>
+      <div class="stat"><div class="stat-num">7</div><div class="stat-label">Вкусов в линейке</div></div>
+      <div class="stat"><div class="stat-num">Slim</div><div class="stat-label">Формат подушечек</div></div>
+      <div class="stat"><div class="stat-num">SE</div><div class="stat-label">Шведское качество</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CATALOG -->
+<section class="catalog" id="catalog">
+  <div class="catalog-header">
+    <p class="section-label">Линейка вкусов</p>
+    <h2 class="section-title">Выбери свой</h2>
+  </div>
+  <div class="cards-grid" id="cardsGrid">
+
+    <!-- 1. Freeze Mint -->
+    <div class="card" data-color="#00B8A9">
+      <img class="card-img" src="uploads/YPi_Ldc7BA_IMG_8696.JPG" alt="KLINT Freeze Mint" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="card-img-placeholder" style="display:none;background:linear-gradient(135deg,#00B8A9,#004D45)">🧊</div>
+      <div class="card-body">
+        <div class="card-flavor" style="color:#00B8A9">Freeze Mint</div>
+        <div class="card-desc">Взрывной холодок арктической мяты. Интенсивный охлаждающий эффект, который держится долго.</div>
+        <div class="card-meta">
+          <span class="badge badge-nic">11 мг/г никотин</span>
+          <span class="badge badge-str">Extra Strong</span>
         </div>
       </div>
+      <div class="card-accent-bar" style="background:#00B8A9"></div>
     </div>
-    <div class="about-visual">
-      <div class="about-badge">
-        <span class="big-num">7</span>
-        <span class="big-label">вкусов<br>в линейке</span>
+
+    <!-- 2. Polar Mint -->
+    <div class="card" data-color="#2196F3">
+      <img class="card-img" src="uploads/M462I207BA_IMG_8624.JPG" alt="KLINT Polar Mint" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="card-img-placeholder" style="display:none;background:linear-gradient(135deg,#2196F3,#0D47A1)">❄️</div>
+      <div class="card-body">
+        <div class="card-flavor" style="color:#2196F3">Polar Mint</div>
+        <div class="card-desc">Мягкая мята с полярной свежестью. Сбалансированный вкус для тех, кто любит классику.</div>
+        <div class="card-meta">
+          <span class="badge badge-nic">8 мг/г никотин</span>
+          <span class="badge badge-str">Strong</span>
+        </div>
+      </div>
+      <div class="card-accent-bar" style="background:#2196F3"></div>
+    </div>
+
+    <!-- 3. Berry Frost -->
+    <div class="card" data-color="#AB47BC">
+      <img class="card-img" src="uploads/5U9Jz_qOwQ_IMG_8626.JPG" alt="KLINT Berry Frost" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="card-img-placeholder" style="display:none;background:linear-gradient(135deg,#AB47BC,#4A148C)">🫐</div>
+      <div class="card-body">
+        <div class="card-flavor" style="color:#AB47BC">Berry Frost</div>
+        <div class="card-desc">Сочная смесь лесных ягод с лёгкой ментоловой прохладой. Яркий и необычный.</div>
+        <div class="card-meta">
+          <span class="badge badge-nic">8 мг/г никотин</span>
+          <span class="badge badge-str">Strong</span>
+        </div>
+      </div>
+      <div class="card-accent-bar" style="background:#AB47BC"></div>
+    </div>
+
+    <!-- 4. Citrus -->
+    <div class="card" data-color="#FF9800">
+      <img class="card-img" src="uploads/DHFklQ3OwQ_IMG_8632.JPG" alt="KLINT Citrus" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="card-img-placeholder" style="display:none;background:linear-gradient(135deg,#FF9800,#E65100)">🍋</div>
+      <div class="card-body">
+        <div class="card-flavor" style="color:#FF9800">Citrus</div>
+        <div class="card-desc">Бодрящий цитрус — лимон и апельсин. Свежий и лёгкий вкус для дневного использования.</div>
+        <div class="card-meta">
+          <span class="badge badge-nic">6 мг/г никотин</span>
+          <span class="badge badge-str">Normal</span>
+        </div>
+      </div>
+      <div class="card-accent-bar" style="background:#FF9800"></div>
+    </div>
+
+    <!-- 5. Tropical -->
+    <div class="card" data-color="#4CAF50">
+      <img class="card-img" src="uploads/IvssUMsOwQ_IMG_8628.JPG" alt="KLINT Tropical" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="card-img-placeholder" style="display:none;background:linear-gradient(135deg,#4CAF50,#1B5E20)">🌴</div>
+      <div class="card-body">
+        <div class="card-flavor" style="color:#4CAF50">Tropical</div>
+        <div class="card-desc">Манго, ананас, маракуйя. Тропическое лето в одной подушечке — яркий и сочный вкус.</div>
+        <div class="card-meta">
+          <span class="badge badge-nic">6 мг/г никотин</span>
+          <span class="badge badge-str">Normal</span>
+        </div>
+      </div>
+      <div class="card-accent-bar" style="background:#4CAF50"></div>
+    </div>
+
+    <!-- 6. Menthol -->
+    <div class="card" data-color="#00BCD4">
+      <img class="card-img" src="uploads/LHaEf2qOwQ_IMG_8630.JPG" alt="KLINT Menthol" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="card-img-placeholder" style="display:none;background:linear-gradient(135deg,#00BCD4,#006064)">💚</div>
+      <div class="card-body">
+        <div class="card-flavor" style="color:#00BCD4">Menthol</div>
+        <div class="card-desc">Чистый ментол без лишних нот. Классический освежающий вкус с глубоким холодящим послевкусием.</div>
+        <div class="card-meta">
+          <span class="badge badge-nic">8 мг/г никотин</span>
+          <span class="badge badge-str">Strong</span>
+        </div>
+      </div>
+      <div class="card-accent-bar" style="background:#00BCD4"></div>
+    </div>
+
+    <!-- 7. Classic -->
+    <div class="card" data-color="#90A4AE">
+      <img class="card-img" src="uploads/SNWPD8I7BA_IMG_8629.JPG" alt="KLINT Classic" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="card-img-placeholder" style="display:none;background:linear-gradient(135deg,#607D8B,#263238)">⚡</div>
+      <div class="card-body">
+        <div class="card-flavor" style="color:#90A4AE">Classic White</div>
+        <div class="card-desc">Нейтральный вкус без доминирующих нот. Чистый никотин для тех, кто ценит простоту.</div>
+        <div class="card-meta">
+          <span class="badge badge-nic">11 мг/г никотин</span>
+          <span class="badge badge-str">Extra Strong</span>
+        </div>
+      </div>
+      <div class="card-accent-bar" style="background:#90A4AE"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <p class="section-label">Как использовать</p>
+    <h2 class="section-title">Просто</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Открой банку</div>
+        <div class="step-desc">Каждая банка содержит 20 подушечек в формате slim. Верхний отсек — для использованных.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Положи под губу</div>
+        <div class="step-desc">Одну подушечку помести под верхнюю губу. Небольшое покалывание — нормальная реакция.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Наслаждайся</div>
+        <div class="step-desc">30–60 минут вкуса и никотина. Никакого дыма, запаха и неудобств для окружающих.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Утилизируй</div>
+        <div class="step-desc">После использования — в верхний отсек банки. Чисто и удобно в любом месте.</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<section id="cta">
+<section class="cta-section" id="contact">
   <div class="cta-inner">
-    <p class="section-label">Где купить</p>
-    <h2 class="section-title">ПОПРОБУЙ KLINT</h2>
-    <p class="section-sub">Доставка по России. Подписывайся на Telegram-канал — там актуальные цены, акции и новинки.</p>
-    <div class="cta-buttons">
-      <a href="https://t.me/klint_russia" target="_blank" rel="noopener" class="btn btn-primary">
-        Telegram @klint_russia
-      </a>
-      <a href="#flavors" class="btn btn-outline">Все вкусы</a>
-    </div>
+    <h2 class="cta-title">Найди свой вкус</h2>
+    <p class="cta-sub">Присоединяйся к сообществу KLINT в Telegram. Там — актуальный каталог, цены, доставка и всё, что нужно знать.</p>
+    <a class="cta-link" href="https://t.me/klint_russia" target="_blank" rel="noopener">
+      <svg class="tg-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.018 9.505c-.144.658-.528.818-1.07.508l-2.95-2.174-1.423 1.37c-.157.157-.29.29-.594.29l.212-2.998 5.46-4.934c.238-.212-.051-.33-.366-.118L7.09 13.853l-2.9-.908c-.63-.197-.643-.63.132-.932l11.328-4.37c.526-.19.986.13.912.605z"/></svg>
+      @klint_russia
+    </a>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <span class="logo">KLINT</span>
-      <p>Официальный представитель KLINT в России. Никотиновые подушечки без табака.</p>
-    </div>
-    <div class="footer-links">
-      <a href="#flavors">Вкусы</a>
-      <a href="#about">О продукте</a>
-      <a href="https://t.me/klint_russia" target="_blank" rel="noopener">Telegram</a>
-    </div>
-    <a href="https://t.me/klint_russia" target="_blank" rel="noopener" class="footer-tg">
-      ✈ @klint_russia
-    </a>
-  </div>
-  <div class="footer-bottom">
-    <span><span class="age-badge">18+</span>Только для совершеннолетних. Никотин вызывает зависимость.</span>
-    <span>© 2025 KLINT Russia</span>
-  </div>
+  <strong>KLINT</strong> Russia · Никотиновые подушечки · Шведское качество<br>
+  <span style="margin-top:8px;display:block">18+ · Никотин вызывает зависимость</span>
 </footer>
 
-<!-- GSAP + ScrollTrigger -->
+<!-- GSAP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<!-- Lenis smooth scroll -->
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-
 <script>
+(function() {
   gsap.registerPlugin(ScrollTrigger);
 
-  // ── Lenis ──
-  const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add((t) => lenis.raf(t * 1000));
-  gsap.ticker.lagSmoothing(0);
-
   // ── Hero entrance ──
-  const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-  heroTl
-    .to('.hero-eyebrow',   { opacity: 1, y: 0, duration: .7, delay: .2 })
-    .from('.hero h1',      { y: 60 }, '<.1')
-    .to('.hero h1',        { opacity: 1, duration: .8 }, '<')
-    .to('.hero-sub',       { opacity: 1, y: 0, duration: .7 }, '<.2')
-    .to('.hero-cta',       { opacity: 1, y: 0, duration: .6 }, '<.15')
-    .to('.hero-scroll-hint',{ opacity: 1, duration: .6 }, '<.2');
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.7, delay: 0.3 })
+    .to('.hero-title',   { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
+    .to('.hero-sub',     { opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
+    .to('.hero-actions', { opacity: 1, y: 0, duration: 0.6 }, '-=0.4');
 
-  // ── Flavor cards ── each card separate trigger
-  gsap.utils.toArray('.flavor-card').forEach((card, i) => {
+  // Set initial state for hero items
+  gsap.set(['.hero-eyebrow','.hero-title','.hero-sub','.hero-actions'], { y: 30 });
+
+  // ── Cards: each animates individually when entering viewport ──
+  gsap.utils.toArray('.card').forEach(function(card, i) {
     gsap.to(card, {
+      opacity: 1,
+      y: 0,
+      duration: 0.7,
+      ease: 'power3.out',
       scrollTrigger: {
         trigger: card,
         start: 'top 88%',
         toggleActions: 'play none none none',
+        once: true,
       },
-      opacity: 1,
-      y: 0,
-      duration: .6,
-      ease: 'power3.out',
       delay: (i % 3) * 0.08,
     });
   });
 
-  // ── About features ──
-  gsap.utils.toArray('.feature').forEach((f, i) => {
-    gsap.to(f, {
-      scrollTrigger: { trigger: f, start: 'top 85%' },
+  // ── Steps ──
+  gsap.utils.toArray('.step').forEach(function(step, i) {
+    gsap.to(step, {
       opacity: 1,
-      x: 0,
-      duration: .6,
+      y: 0,
+      duration: 0.65,
       ease: 'power2.out',
+      scrollTrigger: {
+        trigger: step,
+        start: 'top 85%',
+        toggleActions: 'play none none none',
+        once: true,
+      },
       delay: i * 0.1,
     });
   });
 
-  // ── About visual badge ──
-  gsap.to('.about-visual', {
-    scrollTrigger: { trigger: '.about-visual', start: 'top 80%' },
-    opacity: 1,
-    duration: .8,
-    ease: 'power2.out',
-  });
-
-  // ── Section titles reveal ──
-  gsap.utils.toArray('.section-title, .section-label, .section-sub').forEach(el => {
-    gsap.from(el, {
-      scrollTrigger: { trigger: el, start: 'top 90%' },
-      y: 30,
+  // ── About stats reveal ──
+  gsap.utils.toArray('.stat').forEach(function(stat, i) {
+    gsap.from(stat, {
       opacity: 0,
-      duration: .65,
+      y: 28,
+      duration: 0.6,
       ease: 'power2.out',
+      scrollTrigger: {
+        trigger: stat,
+        start: 'top 88%',
+        toggleActions: 'play none none none',
+        once: true,
+      },
+      delay: i * 0.1,
     });
   });
+
+  // ── Section headers reveal ──
+  gsap.utils.toArray('.section-title').forEach(function(el) {
+    gsap.from(el, {
+      opacity: 0,
+      y: 40,
+      duration: 0.8,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 85%',
+        toggleActions: 'play none none none',
+        once: true,
+      }
+    });
+  });
+
+  // ── CTA reveal ──
+  gsap.from('.cta-title', {
+    opacity: 0, y: 50, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '.cta-title', start: 'top 80%', once: true }
+  });
+  gsap.from('.cta-sub', {
+    opacity: 0, y: 30, duration: 0.7, ease: 'power2.out', delay: 0.2,
+    scrollTrigger: { trigger: '.cta-sub', start: 'top 82%', once: true }
+  });
+  gsap.from('.cta-link', {
+    opacity: 0, y: 24, scale: 0.95, duration: 0.65, ease: 'back.out(1.5)', delay: 0.35,
+    scrollTrigger: { trigger: '.cta-link', start: 'top 85%', once: true }
+  });
+
+})();
 </script>
 </body>
 </html>
