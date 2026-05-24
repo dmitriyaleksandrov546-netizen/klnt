@@ -34,9 +34,10 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 40px 24px;
       position: relative;
       overflow: hidden;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, #1a1a2e 0%, #0a0a0f 70%);
+      padding: 40px 24px;
     }
 
     .hero::before {
@@ -44,27 +45,35 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 80% 50% at 50% 20%, rgba(0, 229, 255, 0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(41, 182, 246, 0.08) 0%, transparent 60%);
+        radial-gradient(circle at 20% 50%, rgba(0,188,212,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(76,175,80,0.06) 0%, transparent 50%);
       pointer-events: none;
     }
 
-    .hero-label {
+    .hero-eyebrow {
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 4px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
       text-transform: uppercase;
       color: var(--muted);
       margin-bottom: 20px;
+      opacity: 0;
     }
 
     .hero-title {
-      font-size: clamp(52px, 10vw, 120px);
+      font-size: clamp(64px, 14vw, 160px);
       font-weight: 900;
-      letter-spacing: -2px;
+      letter-spacing: -0.02em;
       line-height: 0.9;
       text-transform: uppercase;
-      background: linear-gradient(135deg, #fff 30%, #00e5ff 100%);
+      color: #fff;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    .hero-title span {
+      display: block;
+      background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,0.4));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -72,391 +81,440 @@
 
     .hero-sub {
       margin-top: 24px;
-      font-size: 16px;
+      font-size: clamp(14px, 2vw, 18px);
       color: var(--muted);
-      letter-spacing: 1px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0;
     }
 
-    .scroll-hint {
+    .hero-cta {
+      margin-top: 48px;
+      display: inline-block;
+      padding: 14px 40px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #fff;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.05);
+      transition: background 0.3s, border-color 0.3s;
+      opacity: 0;
+    }
+    .hero-cta:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.35);
+    }
+
+    .hero-scroll-hint {
       position: absolute;
-      bottom: 40px;
+      bottom: 32px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      color: var(--muted);
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      opacity: 0.6;
+      opacity: 0;
     }
-
-    .scroll-hint-line {
+    .hero-scroll-hint span {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .scroll-line {
       width: 1px;
-      height: 40px;
-      background: linear-gradient(to bottom, transparent, var(--muted));
-      animation: scrollLine 1.8s ease-in-out infinite;
+      height: 48px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
     }
 
-    @keyframes scrollLine {
-      0%, 100% { transform: scaleY(0); transform-origin: top; }
-      50% { transform: scaleY(1); transform-origin: top; }
-    }
-
-    /* ── SECTION HEADER ── */
-    .section-header {
-      text-align: center;
-      padding: 80px 24px 48px;
-    }
-
-    .section-header h2 {
-      font-size: clamp(28px, 5vw, 52px);
-      font-weight: 800;
-      letter-spacing: -1px;
-      text-transform: uppercase;
-    }
-
-    .section-header p {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 15px;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* ── GRID ── */
-    .cards-section {
-      padding: 0 24px 120px;
-      max-width: 1320px;
+    /* ── CATALOG SECTION ── */
+    .catalog {
+      padding: 120px 24px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
+    .section-header {
+      text-align: center;
+      margin-bottom: 80px;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .section-desc {
+      margin-top: 16px;
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    /* ── GRID ── */
     .cards-grid {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: var(--card-gap);
-    }
-
-    @media (min-width: 600px) {
-      .cards-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (min-width: 960px) {
-      .cards-grid { grid-template-columns: repeat(3, 1fr); }
     }
 
     /* ── CARD ── */
     .card {
-      border-radius: var(--radius);
-      overflow: hidden;
       position: relative;
+      border-radius: var(--radius);
       background: var(--surface);
       border: 1px solid rgba(255,255,255,0.06);
-      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                  box-shadow 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      overflow: hidden;
       cursor: pointer;
-      will-change: transform;
-      /* cards start invisible — GSAP animates them in */
       opacity: 0;
-      transform: translateY(60px);
+      transform: translateY(50px);
+      transition: transform 0.4s cubic-bezier(0.23,1,0.32,1),
+                  box-shadow 0.4s cubic-bezier(0.23,1,0.32,1),
+                  border-color 0.4s;
     }
 
     .card:hover {
-      transform: translateY(-6px) scale(1.015);
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: var(--radius);
-      padding: 1px;
-      background: linear-gradient(135deg, var(--accent, #fff), transparent 60%);
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .card-glow {
-      position: absolute;
-      top: -60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 260px;
-      height: 260px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--accent, #fff) 0%, transparent 70%);
-      opacity: 0.12;
-      pointer-events: none;
-      filter: blur(30px);
-      transition: opacity 0.35s ease;
-    }
-
-    .card:hover .card-glow {
-      opacity: 0.22;
+      transform: translateY(-6px) scale(1.02);
     }
 
     .card-img-wrap {
       position: relative;
-      width: 100%;
-      padding-top: 75%;
-      background: radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.04) 0%, transparent 70%);
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
     }
 
-    .card-img-wrap img {
+    .card-img-wrap::after {
+      content: '';
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
+      background: linear-gradient(to bottom, transparent 50%, var(--surface) 100%);
+      pointer-events: none;
+    }
+
+    .card-img-wrap img {
+      width: 200px;
+      height: 200px;
       object-fit: contain;
-      padding: 24px;
-      transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      filter: drop-shadow(0 12px 32px rgba(0,0,0,0.6));
+      position: relative;
+      z-index: 1;
+      transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
     }
 
     .card:hover .card-img-wrap img {
-      transform: scale(1.06) translateY(-4px);
+      transform: scale(1.08) translateY(-8px);
+    }
+
+    .card-bg-glow {
+      position: absolute;
+      inset: 0;
+      opacity: 0.12;
+      transition: opacity 0.4s;
+    }
+    .card:hover .card-bg-glow {
+      opacity: 0.22;
     }
 
     .card-body {
-      padding: 20px 24px 24px;
+      padding: 20px 24px 28px;
     }
 
-    .card-flavour {
-      font-size: 18px;
+    .card-flavor {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .card-name {
+      font-size: 24px;
       font-weight: 800;
-      letter-spacing: -0.3px;
-      text-transform: uppercase;
-      color: var(--text);
+      letter-spacing: -0.01em;
+      color: #fff;
+      margin-bottom: 16px;
     }
 
-    .card-tag {
-      display: inline-block;
-      margin-top: 6px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--accent, #fff);
-      opacity: 0.8;
-    }
-
-    .card-divider {
-      width: 40px;
-      height: 2px;
-      background: var(--accent, #fff);
-      margin: 14px 0;
-      border-radius: 2px;
-      opacity: 0.7;
-    }
-
-    .card-meta {
+    /* strength dots */
+    .strength-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 12px;
+      margin-bottom: 16px;
     }
-
-    .card-nicotine {
-      font-size: 12px;
+    .strength-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
       color: var(--muted);
-      letter-spacing: 0.5px;
+      flex-shrink: 0;
     }
-
-    .card-nicotine span {
-      color: var(--text);
-      font-weight: 700;
-    }
-
-    /* ── STRENGTH DOTS ── */
     .dots {
       display: flex;
       gap: 5px;
-      align-items: center;
     }
-
     .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      transition: background 0.3s, transform 0.3s;
+    }
+    .dot.active {
+      transform: scale(1.1);
     }
 
-    .dot.filled {
-      background: var(--accent, #fff);
-      box-shadow: 0 0 6px var(--accent, #fff);
+    .card-nicotine {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .card-nicotine strong {
+      color: #fff;
+      font-weight: 700;
     }
 
-    .dot.empty {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.2);
+    .card-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
     /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      padding: 48px 24px;
+    .footer {
       border-top: 1px solid rgba(255,255,255,0.06);
-      color: var(--muted);
+      padding: 48px 24px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.15);
+      margin-bottom: 12px;
+    }
+    .footer-text {
       font-size: 12px;
-      letter-spacing: 1px;
+      color: var(--muted);
+      line-height: 1.8;
     }
 
-    footer strong {
-      color: var(--text);
-      font-weight: 800;
-    }
-
-    /* ── MEDIA: reduced motion ── */
-    @media (prefers-reduced-motion: reduce) {
-      .card { opacity: 1 !important; transform: none !important; transition: none !important; }
-      .scroll-hint-line { animation: none; }
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .catalog { padding: 80px 16px; }
     }
   </style>
 </head>
 <body>
 
   <!-- HERO -->
-  <section class="hero">
-    <p class="hero-label">Swedish Quality · Slim Nicotine Pouches</p>
-    <h1 class="hero-title">KLINT</h1>
-    <p class="hero-sub">7 вкусов · Без табака · Без дыма</p>
-    <div class="scroll-hint">
-      <div class="scroll-hint-line"></div>
+  <section class="hero" id="hero">
+    <p class="hero-eyebrow">Swedish Quality · Slim Nicotine Pouches</p>
+    <h1 class="hero-title"><span>KLINT</span></h1>
+    <p class="hero-sub">Russia Official · Premium Collection</p>
+    <a href="#catalog" class="hero-cta">Выбрать вкус</a>
+    <div class="hero-scroll-hint">
       <span>Scroll</span>
+      <div class="scroll-line"></div>
     </div>
   </section>
 
-  <!-- CATALOGUE -->
-  <section class="section-header">
-    <h2>Линейка вкусов</h2>
-    <p>Никотиновые подушечки премиум-качества.<br>Выбери свой вкус и крепость.</p>
-  </section>
+  <!-- CATALOG -->
+  <section class="catalog" id="catalog">
+    <div class="section-header">
+      <p class="section-label">Коллекция 2025</p>
+      <h2 class="section-title">Линейка вкусов</h2>
+      <p class="section-desc">Никотиновые подушечки премиум-качества. Выбери свой вкус и крепость.</p>
+    </div>
 
-  <section class="cards-section">
     <div class="cards-grid" id="cardsGrid">
 
-      <!-- 1. Apple Mint -->
-      <div class="card" style="--accent:#4CAF50;" data-strength="5" data-nicotine="14 мг/г">
-        <div class="card-glow"></div>
+      <!-- Apple Mint -->
+      <div class="card" data-accent="#4CAF50">
+        <div class="card-badge">Slim</div>
         <div class="card-img-wrap">
-          <img src="uploads/klint_bg_8030.PNG" alt="Apple Mint" loading="lazy" />
+          <div class="card-bg-glow" style="background:radial-gradient(circle at 50% 50%,#4CAF50,transparent 70%)"></div>
+          <img src="img/apple-mint.png" alt="KLINT Apple Mint" loading="lazy" />
         </div>
         <div class="card-body">
-          <div class="card-flavour">Apple Mint</div>
-          <div class="card-tag">Яблоко · Мята</div>
-          <div class="card-divider"></div>
-          <div class="card-meta">
-            <div class="card-nicotine">Никотин <span>14 мг/г</span></div>
-            <div class="dots"></div>
+          <p class="card-flavor">Яблоко · Мята</p>
+          <h3 class="card-name">Apple Mint</h3>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-total="6" data-active="6" data-color="#4CAF50">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
           </div>
+          <p class="card-nicotine">Никотин <strong>20 мг/г</strong></p>
         </div>
       </div>
 
-      <!-- 2. Arctic Mint -->
-      <div class="card" style="--accent:#00BCD4;" data-strength="5" data-nicotine="14 мг/г">
-        <div class="card-glow"></div>
+      <!-- Arctic Mint -->
+      <div class="card" data-accent="#00BCD4">
+        <div class="card-badge">Slim</div>
         <div class="card-img-wrap">
-          <img src="uploads/klint_bg_8031.PNG" alt="Arctic Mint" loading="lazy" />
+          <div class="card-bg-glow" style="background:radial-gradient(circle at 50% 50%,#00BCD4,transparent 70%)"></div>
+          <img src="img/arctic-mint.png" alt="KLINT Arctic Mint" loading="lazy" />
         </div>
         <div class="card-body">
-          <div class="card-flavour">Arctic Mint</div>
-          <div class="card-tag">Арктическая мята</div>
-          <div class="card-divider"></div>
-          <div class="card-meta">
-            <div class="card-nicotine">Никотин <span>14 мг/г</span></div>
-            <div class="dots"></div>
+          <p class="card-flavor">Арктическая мята</p>
+          <h3 class="card-name">Arctic Mint</h3>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-total="6" data-active="5" data-color="#00BCD4">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
           </div>
+          <p class="card-nicotine">Никотин <strong>20 мг/г</strong></p>
         </div>
       </div>
 
-      <!-- 3. Cola Lime -->
-      <div class="card" style="--accent:#E53935;" data-strength="5" data-nicotine="14 мг/г">
-        <div class="card-glow"></div>
+      <!-- Avalanche Mint -->
+      <div class="card" data-accent="#546E7A">
+        <div class="card-badge">Slim</div>
         <div class="card-img-wrap">
-          <img src="uploads/klint_bg_8038.PNG" alt="Cola Lime" loading="lazy" />
+          <div class="card-bg-glow" style="background:radial-gradient(circle at 50% 50%,#546E7A,transparent 70%)"></div>
+          <img src="img/avalanche-mint.png" alt="KLINT Avalanche Mint" loading="lazy" />
         </div>
         <div class="card-body">
-          <div class="card-flavour">Cola Lime</div>
-          <div class="card-tag">Кола · Лайм</div>
-          <div class="card-divider"></div>
-          <div class="card-meta">
-            <div class="card-nicotine">Никотин <span>14 мг/г</span></div>
-            <div class="dots"></div>
+          <p class="card-flavor">Лавина мяты</p>
+          <h3 class="card-name">Avalanche Mint</h3>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-total="6" data-active="6" data-color="#546E7A">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
           </div>
+          <p class="card-nicotine">Никотин <strong>25 мг/г</strong></p>
         </div>
       </div>
 
-      <!-- 4. Freeze Mint -->
-      <div class="card" style="--accent:#00E5FF;" data-strength="5" data-nicotine="14 мг/г">
-        <div class="card-glow"></div>
+      <!-- Cola Lime -->
+      <div class="card" data-accent="#E53935">
+        <div class="card-badge">Slim</div>
         <div class="card-img-wrap">
-          <img src="uploads/klint_bg_8041.PNG" alt="Freeze Mint" loading="lazy" />
+          <div class="card-bg-glow" style="background:radial-gradient(circle at 50% 50%,#E53935,transparent 70%)"></div>
+          <img src="img/cola-lime.png" alt="KLINT Cola Lime" loading="lazy" />
         </div>
         <div class="card-body">
-          <div class="card-flavour">Freeze Mint</div>
-          <div class="card-tag">Ледяная мята</div>
-          <div class="card-divider"></div>
-          <div class="card-meta">
-            <div class="card-nicotine">Никотин <span>14 мг/г</span></div>
-            <div class="dots"></div>
+          <p class="card-flavor">Кола · Лайм</p>
+          <h3 class="card-name">Cola Lime</h3>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-total="6" data-active="4" data-color="#E53935">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
           </div>
+          <p class="card-nicotine">Никотин <strong>14 мг/г</strong></p>
         </div>
       </div>
 
-      <!-- 5. Avalanche Mint -->
-      <div class="card" style="--accent:#546E7A;" data-strength="6" data-nicotine="20 мг/г">
-        <div class="card-glow"></div>
+      <!-- Freeze Mint -->
+      <div class="card" data-accent="#00E5FF">
+        <div class="card-badge">Slim</div>
         <div class="card-img-wrap">
-          <img src="uploads/klint_bg_8033.PNG" alt="Avalanche Mint" loading="lazy" />
+          <div class="card-bg-glow" style="background:radial-gradient(circle at 50% 50%,#00E5FF,transparent 70%)"></div>
+          <img src="img/freeze-mint.png" alt="KLINT Freeze Mint" loading="lazy" />
         </div>
         <div class="card-body">
-          <div class="card-flavour">Avalanche Mint</div>
-          <div class="card-tag">Лавинная мята · Strong</div>
-          <div class="card-divider"></div>
-          <div class="card-meta">
-            <div class="card-nicotine">Никотин <span>20 мг/г</span></div>
-            <div class="dots"></div>
+          <p class="card-flavor">Морозная мята</p>
+          <h3 class="card-name">Freeze Mint</h3>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-total="6" data-active="5" data-color="#00E5FF">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
           </div>
+          <p class="card-nicotine">Никотин <strong>20 мг/г</strong></p>
         </div>
       </div>
 
-      <!-- 6. Polar Mint -->
-      <div class="card" style="--accent:#29B6F6;" data-strength="5" data-nicotine="14 мг/г">
-        <div class="card-glow"></div>
+      <!-- Polar Mint -->
+      <div class="card" data-accent="#29B6F6">
+        <div class="card-badge">Slim</div>
         <div class="card-img-wrap">
-          <img src="uploads/klint_bg_8043.PNG" alt="Polar Mint" loading="lazy" />
+          <div class="card-bg-glow" style="background:radial-gradient(circle at 50% 50%,#29B6F6,transparent 70%)"></div>
+          <img src="img/polar-mint.png" alt="KLINT Polar Mint" loading="lazy" />
         </div>
         <div class="card-body">
-          <div class="card-flavour">Polar Mint</div>
-          <div class="card-tag">Полярная мята</div>
-          <div class="card-divider"></div>
-          <div class="card-meta">
-            <div class="card-nicotine">Никотин <span>14 мг/г</span></div>
-            <div class="dots"></div>
+          <p class="card-flavor">Полярная мята</p>
+          <h3 class="card-name">Polar Mint</h3>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-total="6" data-active="5" data-color="#29B6F6">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
           </div>
+          <p class="card-nicotine">Никотин <strong>12 мг/г</strong></p>
         </div>
       </div>
 
-      <!-- 7. Alaskan Mint -->
-      <div class="card" style="--accent:#6A1B9A;" data-strength="5" data-nicotine="14 мг/г">
-        <div class="card-glow"></div>
+      <!-- Alaskan Mint -->
+      <div class="card" data-accent="#7B1FA2">
+        <div class="card-badge">Slim</div>
         <div class="card-img-wrap">
-          <img src="uploads/klint_bg_9035.PNG" alt="Alaskan Mint" loading="lazy" />
+          <div class="card-bg-glow" style="background:radial-gradient(circle at 50% 50%,#7B1FA2,transparent 70%)"></div>
+          <img src="img/alaskan-mint.png" alt="KLINT Alaskan Mint" loading="lazy" />
         </div>
         <div class="card-body">
-          <div class="card-flavour">Alaskan Mint</div>
-          <div class="card-tag">Аляскинская мята</div>
-          <div class="card-divider"></div>
-          <div class="card-meta">
-            <div class="card-nicotine">Никотин <span>14 мг/г</span></div>
-            <div class="dots"></div>
+          <p class="card-flavor">Аляскинская мята</p>
+          <h3 class="card-name">Alaskan Mint</h3>
+          <div class="strength-row">
+            <span class="strength-label">Крепость</span>
+            <div class="dots" data-total="7" data-active="7" data-color="#7B1FA2">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div>
+            </div>
           </div>
+          <p class="card-nicotine">Никотин <strong>30 мг/г</strong></p>
         </div>
       </div>
 
@@ -464,83 +522,133 @@
   </section>
 
   <!-- FOOTER -->
-  <footer>
-    <strong>KLINT Russia</strong> · Slim Nicotine Pouches · Swedish Quality<br>
-    <span style="margin-top:8px;display:block;">18+ · Никотин вызывает зависимость</span>
+  <footer class="footer">
+    <div class="footer-logo">KLINT</div>
+    <p class="footer-text">
+      Swedish Quality · Slim Nicotine Pouches<br>
+      18+ | Только для совершеннолетних | Содержит никотин
+    </p>
   </footer>
 
-  <!-- ── SCRIPTS ── -->
-  <!-- Lenis smooth scroll -->
+  <!-- GSAP + Lenis -->
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-  <!-- GSAP + ScrollTrigger -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
   <script>
-    /* ── 1. Build strength dots ── */
-    const MAX_DOTS = 6;
-    document.querySelectorAll('.card').forEach(card => {
-      const filled = parseInt(card.dataset.strength, 10);
-      const dotsEl = card.querySelector('.dots');
-      for (let i = 1; i <= MAX_DOTS; i++) {
-        const d = document.createElement('div');
-        d.className = 'dot ' + (i <= filled ? 'filled' : 'empty');
-        dotsEl.appendChild(d);
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ── Lenis ── */
+    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((t) => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    /* ── Hero animations ── */
+    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    heroTl
+      .to('.hero-eyebrow', { opacity: 1, duration: 0.8, delay: 0.2 })
+      .to('.hero-title',   { opacity: 1, y: 0, duration: 1.0 }, '-=0.4')
+      .to('.hero-sub',     { opacity: 1, duration: 0.7 }, '-=0.5')
+      .to('.hero-cta',     { opacity: 1, duration: 0.7 }, '-=0.4')
+      .to('.hero-scroll-hint', { opacity: 1, duration: 0.7 }, '-=0.3');
+
+    /* ── Hero parallax ── */
+    gsap.to('.hero', {
+      backgroundPositionY: '30%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
       }
     });
 
-    /* ── 2. Respect reduced-motion preference ── */
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) {
-      // Make all cards visible without animation
-      document.querySelectorAll('.card').forEach(c => {
-        c.style.opacity = 1;
-        c.style.transform = 'none';
-      });
-    } else {
-      /* ── 3. Lenis ── */
-      const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+    /* ── Section header ── */
+    gsap.to('.section-header', {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '.section-header',
+        start: 'top 85%'
+      }
+    });
 
-      /* ── 4. GSAP + ScrollTrigger ── */
-      gsap.registerPlugin(ScrollTrigger);
-
-      // Sync Lenis → ScrollTrigger
-      lenis.on('scroll', ScrollTrigger.update);
-      gsap.ticker.add(t => lenis.raf(t * 1000));
-      gsap.ticker.lagSmoothing(0);
-
-      /* ── 5. Hero elements reveal ── */
-      const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      heroTl
-        .from('.hero-label',  { y: 20, opacity: 0, duration: 0.7 })
-        .from('.hero-title',  { y: 40, opacity: 0, duration: 0.9 }, '-=0.4')
-        .from('.hero-sub',    { y: 20, opacity: 0, duration: 0.7 }, '-=0.5')
-        .from('.scroll-hint', { opacity: 0, duration: 0.8 }, '-=0.3');
-
-      /* ── 6. Section header reveal ── */
-      gsap.from('.section-header', {
-        scrollTrigger: { trigger: '.section-header', start: 'top 85%' },
-        y: 40, opacity: 0, duration: 0.8, ease: 'power3.out'
+    /* ── Cards: staggered reveal ── */
+    gsap.utils.toArray('.card').forEach((card, i) => {
+      gsap.to(card, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 88%',
+          once: true
+        },
+        delay: (i % 3) * 0.08,
+        onComplete: () => animateDots(card)
       });
 
-      /* ── 7. Cards staggered reveal — one ScrollTrigger per card ── */
-      gsap.utils.toArray('.card').forEach((card, i) => {
+      /* ── Hover glow (accent colour) ── */
+      const accent = card.dataset.accent || '#ffffff';
+      card.addEventListener('mouseenter', () => {
         gsap.to(card, {
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 88%',
-            toggleActions: 'play none none none',
-            once: true,
-            invalidateOnRefresh: true
-          },
-          y: 0,
-          opacity: 1,
-          duration: 0.75,
-          ease: 'power3.out',
-          delay: (i % 3) * 0.08   // subtle stagger within each row
+          boxShadow: `0 0 40px 4px ${accent}40, 0 20px 60px rgba(0,0,0,0.5)`,
+          borderColor: `${accent}60`,
+          duration: 0.35,
+          ease: 'power2.out'
         });
       });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, {
+          boxShadow: 'none',
+          borderColor: 'rgba(255,255,255,0.06)',
+          duration: 0.4,
+          ease: 'power2.out'
+        });
+      });
+    });
+
+    /* ── Dots fill animation ── */
+    function animateDots(card) {
+      const dotsWrap = card.querySelector('.dots');
+      if (!dotsWrap) return;
+      const total  = parseInt(dotsWrap.dataset.total)  || 6;
+      const active = parseInt(dotsWrap.dataset.active) || 4;
+      const color  = dotsWrap.dataset.color || '#fff';
+      const dots   = dotsWrap.querySelectorAll('.dot');
+
+      dots.forEach((dot, i) => {
+        if (i < active) {
+          gsap.to(dot, {
+            background: color,
+            boxShadow: `0 0 6px ${color}`,
+            duration: 0.25,
+            delay: i * 0.07,
+            ease: 'power2.out',
+            onStart: () => dot.classList.add('active')
+          });
+        }
+      });
+    }
+
+    /* ── Smooth scroll for CTA ── */
+    document.querySelector('.hero-cta').addEventListener('click', (e) => {
+      e.preventDefault();
+      lenis.scrollTo('#catalog', { duration: 1.4, easing: (t) => 1 - Math.pow(1 - t, 4) });
+    });
+
+    /* ── prefers-reduced-motion fallback ── */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.globalTimeline.timeScale(0);
+      document.querySelectorAll('.card, .hero-eyebrow, .hero-title, .hero-sub, .hero-cta, .section-header')
+        .forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
     }
   </script>
+
 </body>
 </html>
