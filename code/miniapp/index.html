@@ -1,295 +1,308 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BookBot</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-  :root {
-    --bg: var(--tg-theme-bg-color, #1c1c1e);
-    --bg2: var(--tg-theme-secondary-bg-color, #2c2c2e);
-    --text: var(--tg-theme-text-color, #ffffff);
-    --hint: var(--tg-theme-hint-color, #8e8e93);
-    --link: var(--tg-theme-link-color, #0a84ff);
-    --btn: var(--tg-theme-button-color, #0a84ff);
-    --btn-text: var(--tg-theme-button-text-color, #ffffff);
-    --radius: 14px;
-    --tab-h: 60px;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>BookBot</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg:        var(--tg-theme-bg-color,        #1c1c1e);
+      --bg2:       var(--tg-theme-secondary-bg-color, #2c2c2e);
+      --text:      var(--tg-theme-text-color,       #ffffff);
+      --hint:      var(--tg-theme-hint-color,       #8e8e93);
+      --link:      var(--tg-theme-link-color,       #0a84ff);
+      --btn:       var(--tg-theme-button-color,     #0a84ff);
+      --btn-text:  var(--tg-theme-button-text-color,#ffffff);
+      --accent:    #0a84ff;
+      --green:     #30d158;
+      --radius:    14px;
+      --tab-h:     60px;
+    }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
+      min-height: 100vh;
+      overscroll-behavior: none;
+    }
 
-  /* ── TABS ── */
-  .tabs {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: var(--tab-h);
-    background: var(--bg2);
-    display: flex;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .tab-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    background: none;
-    border: none;
-    color: var(--hint);
-    font-size: 10px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: color .2s;
-    padding-bottom: 4px;
-  }
-  .tab-btn.active { color: var(--btn); }
-  .tab-btn svg { width: 24px; height: 24px; }
+    /* ── TABS NAV ── */
+    .tab-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--tab-h);
+      background: var(--bg2);
+      display: flex;
+      border-top: 1px solid rgba(255,255,255,.08);
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      color: var(--hint);
+      transition: color .2s;
+      background: none;
+      border: none;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .tab-btn.active { color: var(--accent); }
+    .tab-btn svg { width: 24px; height: 24px; }
 
-  /* ── SCREENS ── */
-  .screen {
-    display: none;
-    padding: 16px 16px calc(var(--tab-h) + 16px + env(safe-area-inset-bottom));
-    min-height: 100vh;
-  }
-  .screen.active { display: block; }
+    /* ── PAGES ── */
+    .page {
+      display: none;
+      padding: 16px 16px calc(var(--tab-h) + 16px + env(safe-area-inset-bottom));
+      min-height: 100vh;
+    }
+    .page.active { display: block; }
 
-  /* ── HEADER ── */
-  .screen-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .screen-header h1 {
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-  .back-btn {
-    width: 32px; height: 32px;
-    background: var(--bg2);
-    border: none;
-    border-radius: 50%;
-    color: var(--btn);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -.3px;
+    }
 
-  /* ── BOOK CARD ── */
-  .book-card {
-    background: var(--bg2);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: transform .15s, opacity .15s;
-    position: relative;
-  }
-  .book-card:active { transform: scale(0.98); opacity: 0.9; }
+    /* ── BOOK CARD ── */
+    .book-card {
+      background: var(--bg2);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .book-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .book-cover {
+      width: 48px; height: 64px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent) 0%, #5e5ce6 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .book-meta { flex: 1; min-width: 0; }
+    .book-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .book-author { font-size: 13px; color: var(--hint); }
 
-  .book-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 2px;
-    line-height: 1.3;
-  }
-  .book-author {
-    font-size: 13px;
-    color: var(--hint);
-    margin-bottom: 14px;
-  }
+    /* ── PROGRESS ── */
+    .progress-block { margin-bottom: 10px; }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--hint);
+      margin-bottom: 5px;
+    }
+    .progress-label span:last-child { font-weight: 600; color: var(--text); }
+    .progress-track {
+      height: 5px;
+      background: rgba(255,255,255,.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .4s ease;
+    }
+    .progress-fill.reading { background: var(--accent); }
+    .progress-fill.tests   { background: var(--green); }
 
-  /* progress bars */
-  .progress-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-  .progress-label {
-    font-size: 11px;
-    color: var(--hint);
-    width: 64px;
-    flex-shrink: 0;
-  }
-  .progress-track {
-    flex: 1;
-    height: 5px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    border-radius: 999px;
-    transition: width .6s cubic-bezier(.4,0,.2,1);
-  }
-  .progress-fill.read  { background: var(--btn); }
-  .progress-fill.tests { background: #30d158; }
-  .progress-pct {
-    font-size: 11px;
-    color: var(--hint);
-    width: 32px;
-    text-align: right;
-    flex-shrink: 0;
-  }
+    /* ── CARD FOOTER ── */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .book-link {
+      font-size: 13px;
+      color: var(--link);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .book-link svg { width: 14px; height: 14px; }
+    .btn-chapters {
+      background: var(--btn);
+      color: var(--btn-text);
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn-chapters:active { opacity: .75; }
 
-  /* card footer */
-  .book-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.07);
-  }
-  .book-link {
-    font-size: 13px;
-    color: var(--link);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .book-link:hover { text-decoration: underline; }
-  .chapters-btn {
-    background: var(--btn);
-    color: var(--btn-text);
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity .15s;
-  }
-  .chapters-btn:active { opacity: 0.8; }
+    /* ── CHAPTERS VIEW ── */
+    #chapters-view { display: none; }
+    #chapters-view.active { display: block; }
+    #books-list-view { display: block; }
+    #books-list-view.hidden { display: none; }
 
-  /* ── CHAPTERS VIEW ── */
-  #chapters-screen .book-meta {
-    background: var(--bg2);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom: 18px;
-  }
-  #chapters-screen .book-meta .book-title { font-size: 17px; }
-  #chapters-screen .book-meta .book-author { margin-bottom: 0; }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--link);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-bottom: 16px;
+    }
+    .back-btn svg { width: 20px; height: 20px; }
 
-  .chapter-list { display: flex; flex-direction: column; gap: 2px; }
-  .chapter-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    background: var(--bg2);
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background .15s;
-  }
-  .chapter-item:active { background: rgba(255,255,255,0.1); }
-  .chapter-num {
-    width: 28px; height: 28px;
-    background: rgba(255,255,255,0.07);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    color: var(--hint);
-    flex-shrink: 0;
-  }
+    .chapters-book-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .chapters-book-author {
+      font-size: 14px;
+      color: var(--hint);
+      margin-bottom: 20px;
+    }
 
-  /* ── TESTS ── */
-  .test-card {
-    background: var(--bg2);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  .test-book-name {
-    font-size: 12px;
-    color: var(--btn);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-  .test-question {
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.4;
-    margin-bottom: 14px;
-  }
-  .test-options { display: flex; flex-direction: column; gap: 8px; }
-  .option-btn {
-    background: rgba(255,255,255,0.06);
-    border: 1.5px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 11px 14px;
-    font-size: 14px;
-    color: var(--text);
-    text-align: left;
-    cursor: pointer;
-    transition: background .15s, border-color .15s;
-  }
-  .option-btn:active { background: rgba(255,255,255,0.12); }
-  .option-btn.correct { background: rgba(48,209,88,0.15); border-color: #30d158; color: #30d158; }
-  .option-btn.wrong   { background: rgba(255,69,58,0.15);  border-color: #ff453a; color: #ff453a; }
+    .chapter-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg2);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .chapter-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(10,132,255,.18);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .chapter-name { font-size: 15px; font-weight: 500; }
 
-  /* empty state */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--hint);
-  }
-  .empty-state svg { opacity: 0.3; margin-bottom: 12px; }
-  .empty-state p { font-size: 15px; }
-</style>
+    /* ── TESTS PAGE ── */
+    .test-card {
+      background: var(--bg2);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .test-book-tag {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .test-question {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+    .test-options { display: flex; flex-direction: column; gap: 8px; }
+    .test-option {
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255,255,255,.12);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      background: none;
+      color: var(--text);
+      text-align: left;
+    }
+    .test-option:active { background: rgba(10,132,255,.15); }
+    .test-option.correct { background: rgba(48,209,88,.15); border-color: var(--green); color: var(--green); }
+    .test-option.wrong   { background: rgba(255,69,58,.15);  border-color: #ff453a; color: #ff453a; }
+    .test-option.disabled { pointer-events: none; }
+
+    .test-result {
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      display: none;
+    }
+    .test-result.show { display: block; }
+    .test-result.ok  { color: var(--green); }
+    .test-result.bad { color: #ff453a; }
+
+    /* ── EMPTY ── */
+    .empty {
+      text-align: center;
+      color: var(--hint);
+      padding: 60px 20px;
+      font-size: 15px;
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  </style>
 </head>
 <body>
 
-<!-- ══════ BOOKS SCREEN ══════ -->
-<div id="books-screen" class="screen active">
-  <div class="screen-header"><h1>Мои книги</h1></div>
-  <div id="books-list"></div>
-</div>
+<!-- ══ BOOKS PAGE ══ -->
+<div id="page-books" class="page active">
 
-<!-- ══════ CHAPTERS SCREEN ══════ -->
-<div id="chapters-screen" class="screen">
-  <div class="screen-header">
-    <button class="back-btn" onclick="showBooks()">
+  <!-- Список книг -->
+  <div id="books-list-view">
+    <div class="section-title">📚 Мои книги</div>
+    <div id="books-container"></div>
+  </div>
+
+  <!-- Главы книги -->
+  <div id="chapters-view">
+    <button class="back-btn" onclick="closeChapters()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
+      Назад
     </button>
-    <h1>Главы</h1>
+    <div class="chapters-book-title" id="chapters-title"></div>
+    <div class="chapters-book-author" id="chapters-author"></div>
+    <div id="chapters-list"></div>
   </div>
-  <div id="chapters-book-meta" class="book-meta"></div>
-  <div id="chapters-list" class="chapter-list"></div>
 </div>
 
-<!-- ══════ TESTS SCREEN ══════ -->
-<div id="tests-screen" class="screen">
-  <div class="screen-header"><h1>Тесты</h1></div>
-  <div id="tests-list"></div>
+<!-- ══ TESTS PAGE ══ -->
+<div id="page-tests" class="page">
+  <div class="section-title">✏️ Тесты</div>
+  <div id="tests-container"></div>
 </div>
 
-<!-- ══════ TAB BAR ══════ -->
-<nav class="tabs">
+<!-- ══ TAB BAR ══ -->
+<nav class="tab-bar">
   <button class="tab-btn active" id="tab-books" onclick="switchTab('books')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -307,207 +320,224 @@
 </nav>
 
 <script>
-// ── init Telegram WebApp ──
+// ══ TELEGRAM SDK ══
 const tg = window.Telegram?.WebApp;
-if (tg) { tg.expand(); tg.setHeaderColor('bg_color'); }
+if (tg) { tg.ready(); tg.expand(); }
 
-// ── MOCK DATA ──
+// ══ MOCK DATA ══
 const books = [
   {
     id: 1,
+    emoji: "⚛️",
     title: "Атомные привычки",
     author: "Джеймс Клир",
     reading_progress: 60,
     test_progress: 30,
     url: "https://books.google.com/books?id=lFhbDwAAQBAJ",
-    chapters: ["Введение","Глава 1: Удивительная сила маленьких привычек","Глава 2: Как ваши привычки формируют вашу личность","Глава 3: Лучший способ начать новую привычку","Глава 4: Человек, который не выглядит как бегун","Глава 5: Лучший способ поддерживать новые привычки"]
+    chapters: ["Введение. Почему маленькие изменения дают большой результат", "Глава 1. Удивительная сила атомных привычек", "Глава 2. Как привычки формируют вашу идентичность", "Глава 3. Как создать привычку (и как её сломать)", "Глава 4. Человек, который не видит систему", "Глава 5. Лучший способ начать новую привычку"]
   },
   {
     id: 2,
+    emoji: "🧠",
     title: "Думай медленно… решай быстро",
     author: "Даниэль Канеман",
     reading_progress: 20,
     test_progress: 0,
-    url: "https://books.google.com/books?id=thinking-fast-and-slow",
-    chapters: ["Введение","Глава 1: Действующие лица истории","Глава 2: Внимание и усилие","Глава 3: Ленивый контролёр"]
+    url: "https://books.google.com/books?id=ZuKTvERuPG8C",
+    chapters: ["Глава 1. Действующие лица", "Глава 2. Внимание и усилие", "Глава 3. Ленивый контролёр", "Глава 4. Ассоциативная машина", "Глава 5. Когнитивная лёгкость"]
   },
   {
     id: 3,
-    title: "Богатый папа, бедный папа",
-    author: "Роберт Кийосаки",
+    emoji: "🚀",
+    title: "От нуля к единице",
+    author: "Питер Тиль",
     reading_progress: 100,
     test_progress: 80,
-    url: "https://books.google.com/books?q=rich+dad+poor+dad+kiyosaki",
-    chapters: ["Глава 1: Богатый папа, бедный папа","Глава 2: Зачем обучать финансовой грамотности","Глава 3: Занимайся своим делом","Глава 4: История о налогах","Глава 5: Богатые изобретают деньги"]
+    url: "https://books.google.com/books?id=_eKZEAAAQBAJ",
+    chapters: ["Глава 1. Будущее: прогресс или стагнация?", "Глава 2. Вечеринка 1999 года", "Глава 3. Все успешные компании-монополисты", "Глава 4. Идеология конкуренции", "Глава 5. Преимущество последнего хода", "Глава 6. Вы не лотерейный билет", "Глава 7. Деньги и удача"]
   }
 ];
 
 const tests = [
   {
-    book_id: 1,
-    question: "Сколько времени, по словам Джеймса Клира, нужно для формирования привычки?",
-    options: ["21 день", "66 дней", "Нет фиксированного срока", "3 месяца"],
+    bookId: 1,
+    question: "Что такое «атомная привычка» по Джеймсу Клиру?",
+    options: [
+      "Привычка, связанная с химическими процессами",
+      "Маленькое изменение, дающее удивительные результаты со временем",
+      "Привычка, которую невозможно сломать",
+      "Привычка, занимающая меньше 2 минут"
+    ],
+    correct: 1
+  },
+  {
+    bookId: 1,
+    question: "Правило двух минут предполагает, что новая привычка должна занимать...",
+    options: [
+      "Ровно 120 секунд каждый день",
+      "Не более двух минут в начале",
+      "Две минуты плюс постепенное увеличение",
+      "Максимум две попытки в день"
+    ],
+    correct: 1
+  },
+  {
+    bookId: 2,
+    question: "Система 1 в теории Канемана — это...",
+    options: [
+      "Медленное аналитическое мышление",
+      "Сознательный контроль поведения",
+      "Быстрое автоматическое мышление",
+      "Долгосрочная память"
+    ],
     correct: 2
-  },
-  {
-    book_id: 1,
-    question: "Что такое «эффект плато скрытого потенциала» по Клиру?",
-    options: ["Быстрый рост в начале обучения", "Период когда результаты не видны но накапливаются", "Снижение мотивации", "Пик продуктивности"],
-    correct: 1
-  },
-  {
-    book_id: 2,
-    question: "Как Канеман называет быструю интуитивную систему мышления?",
-    options: ["Система А", "Система 1", "Система Б", "Система Alpha"],
-    correct: 1
   }
 ];
 
-// ── STATE ──
-let currentTab = 'books';
-let answeredTests = {};
-
-// ── RENDER BOOKS ──
+// ══ RENDER BOOKS ══
 function renderBooks() {
-  const container = document.getElementById('books-list');
+  const container = document.getElementById('books-container');
   if (!books.length) {
-    container.innerHTML = `<div class="empty-state">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <p>Книг пока нет.<br>Добавьте первую через бота.</p>
-    </div>`;
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Книг пока нет.<br>Добавьте книгу через бота.</div>';
     return;
   }
   container.innerHTML = books.map(b => `
     <div class="book-card">
-      <div class="book-title">${esc(b.title)}</div>
-      <div class="book-author">${esc(b.author)}</div>
-
-      <div class="progress-row">
-        <span class="progress-label">Чтение</span>
-        <div class="progress-track">
-          <div class="progress-fill read" style="width:${b.reading_progress}%"></div>
+      <div class="book-header">
+        <div class="book-cover">${b.emoji}</div>
+        <div class="book-meta">
+          <div class="book-title">${b.title}</div>
+          <div class="book-author">${b.author}</div>
         </div>
-        <span class="progress-pct">${b.reading_progress}%</span>
       </div>
-      <div class="progress-row">
-        <span class="progress-label">Тесты</span>
+
+      <div class="progress-block">
+        <div class="progress-label">
+          <span>Чтение</span>
+          <span>${b.reading_progress}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill reading" style="width:${b.reading_progress}%"></div>
+        </div>
+      </div>
+
+      <div class="progress-block">
+        <div class="progress-label">
+          <span>Тесты</span>
+          <span>${b.test_progress}%</span>
+        </div>
         <div class="progress-track">
           <div class="progress-fill tests" style="width:${b.test_progress}%"></div>
         </div>
-        <span class="progress-pct">${b.test_progress}%</span>
       </div>
 
-      <div class="book-footer">
-        <a class="book-link" href="${esc(b.url)}" target="_blank" onclick="event.stopPropagation()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      <div class="card-footer">
+        <a class="book-link" href="${b.url}" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
           Источник
         </a>
-        <button class="chapters-btn" onclick="showChapters(${b.id})">Главы →</button>
+        <button class="btn-chapters" onclick="openChapters(${b.id})">Главы →</button>
       </div>
     </div>
   `).join('');
 }
 
-// ── RENDER CHAPTERS ──
-function showChapters(bookId) {
-  const book = books.find(b => b.id === bookId);
-  if (!book) return;
+// ══ CHAPTERS VIEW ══
+function openChapters(bookId) {
+  const b = books.find(x => x.id === bookId);
+  if (!b) return;
 
-  document.getElementById('chapters-book-meta').innerHTML = `
-    <div class="book-title">${esc(book.title)}</div>
-    <div class="book-author">${esc(book.author)}</div>
-  `;
-
-  document.getElementById('chapters-list').innerHTML = book.chapters.map((ch, i) => `
+  document.getElementById('chapters-title').textContent = b.title;
+  document.getElementById('chapters-author').textContent = b.author;
+  document.getElementById('chapters-list').innerHTML = b.chapters.map((ch, i) => `
     <div class="chapter-item">
       <div class="chapter-num">${i + 1}</div>
-      <span>${esc(ch)}</span>
+      <div class="chapter-name">${ch}</div>
     </div>
   `).join('');
 
-  // hide books, show chapters (no tab switch)
-  document.getElementById('books-screen').classList.remove('active');
-  document.getElementById('chapters-screen').classList.add('active');
+  document.getElementById('books-list-view').classList.add('hidden');
+  document.getElementById('chapters-view').classList.add('active');
+
   if (tg) tg.BackButton.show();
 }
 
-function showBooks() {
-  document.getElementById('chapters-screen').classList.remove('active');
-  document.getElementById('books-screen').classList.add('active');
+function closeChapters() {
+  document.getElementById('chapters-view').classList.remove('active');
+  document.getElementById('books-list-view').classList.remove('hidden');
   if (tg) tg.BackButton.hide();
 }
 
-// ── RENDER TESTS ──
+if (tg) {
+  tg.BackButton.onClick(() => {
+    if (document.getElementById('chapters-view').classList.contains('active')) {
+      closeChapters();
+    }
+  });
+}
+
+// ══ RENDER TESTS ══
 function renderTests() {
-  const container = document.getElementById('tests-list');
+  const container = document.getElementById('tests-container');
   if (!tests.length) {
-    container.innerHTML = `<div class="empty-state"><p>Тестов пока нет.</p></div>`;
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📝</div>Тестов пока нет.</div>';
     return;
   }
   container.innerHTML = tests.map((t, idx) => {
-    const book = books.find(b => b.id === t.book_id);
+    const book = books.find(b => b.id === t.bookId);
     return `
       <div class="test-card" id="test-${idx}">
-        <div class="test-book-name">${book ? esc(book.title) : ''}</div>
-        <div class="test-question">${esc(t.question)}</div>
+        <div class="test-book-tag">${book ? book.title : 'Книга'}</div>
+        <div class="test-question">${t.question}</div>
         <div class="test-options">
           ${t.options.map((opt, oi) => `
-            <button class="option-btn" onclick="answerTest(${idx}, ${oi})">${esc(opt)}</button>
+            <button class="test-option" onclick="answerTest(${idx}, ${oi})">${opt}</button>
           `).join('')}
         </div>
+        <div class="test-result" id="test-result-${idx}"></div>
       </div>
     `;
   }).join('');
 }
 
-function answerTest(testIdx, optionIdx) {
-  if (answeredTests[testIdx] !== undefined) return;
-  answeredTests[testIdx] = optionIdx;
-
+function answerTest(testIdx, optIdx) {
   const t = tests[testIdx];
   const card = document.getElementById(`test-${testIdx}`);
-  const btns = card.querySelectorAll('.option-btn');
-  btns.forEach((btn, i) => {
-    btn.disabled = true;
-    if (i === t.correct) btn.classList.add('correct');
-    else if (i === optionIdx && optionIdx !== t.correct) btn.classList.add('wrong');
-  });
-  if (tg) tg.HapticFeedback.notificationOccurred(optionIdx === t.correct ? 'success' : 'error');
-}
+  const result = document.getElementById(`test-result-${testIdx}`);
+  const btns = card.querySelectorAll('.test-option');
 
-// ── TAB SWITCH ──
-function switchTab(tab) {
-  // can't switch to tab while in chapters view
-  if (document.getElementById('chapters-screen').classList.contains('active')) {
-    showBooks();
+  btns.forEach(b => b.classList.add('disabled'));
+  btns[optIdx].classList.add(optIdx === t.correct ? 'correct' : 'wrong');
+  if (optIdx !== t.correct) btns[t.correct].classList.add('correct');
+
+  result.classList.add('show');
+  if (optIdx === t.correct) {
+    result.classList.add('ok');
+    result.textContent = '✓ Правильно!';
+  } else {
+    result.classList.add('bad');
+    result.textContent = `✗ Неверно. Правильный ответ: «${t.options[t.correct]}»`;
   }
-  currentTab = tab;
-
-  ['books','tests'].forEach(t => {
-    document.getElementById(`${t}-screen`).classList.toggle('active', t === tab);
-    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
-  });
 }
 
-// ── UTILS ──
-function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+// ══ TAB SWITCH ══
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${tab}`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+
+  // При переходе на Книги — закрываем главы если были открыты
+  if (tab === 'books') {
+    closeChapters();
+  }
 }
 
-// ── Telegram BackButton ──
-if (tg) {
-  tg.BackButton.onClick(() => {
-    if (document.getElementById('chapters-screen').classList.contains('active')) {
-      showBooks();
-    }
-  });
-}
-
-// ── INIT ──
+// ══ INIT ══
 renderBooks();
 renderTests();
 </script>
