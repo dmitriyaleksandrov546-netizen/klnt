@@ -6,6 +6,16 @@
 //   BOOKBOT_PROXY_SECRET — same value as on the VDS
 
 export default async function handler(req, res) {
+  // CORS — открыт для Mini App с любого хоста (github.io, vercel preview, etc.)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Telegram-Init-Data');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+
   const base = process.env.BOOKBOT_API_URL;
   const secret = process.env.BOOKBOT_PROXY_SECRET;
   if (!base) {
