@@ -8,13 +8,14 @@
 <style>
   :root {
     --bg: var(--tg-theme-bg-color, #1c1c1e);
-    --bg-secondary: var(--tg-theme-secondary-bg-color, #2c2c2e);
+    --bg2: var(--tg-theme-secondary-bg-color, #2c2c2e);
     --text: var(--tg-theme-text-color, #ffffff);
     --hint: var(--tg-theme-hint-color, #8e8e93);
-    --accent: var(--tg-theme-button-color, #007aff);
-    --accent-text: var(--tg-theme-button-text-color, #ffffff);
-    --link: var(--tg-theme-link-color, #007aff);
-    --card-radius: 16px;
+    --link: var(--tg-theme-link-color, #0a84ff);
+    --btn: var(--tg-theme-button-color, #0a84ff);
+    --btn-text: var(--tg-theme-button-text-color, #ffffff);
+    --divider: rgba(255,255,255,0.08);
+    --radius: 14px;
     --tab-h: 60px;
   }
 
@@ -23,39 +24,71 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    font-size: 16px;
     min-height: 100vh;
-    padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom));
     overflow-x: hidden;
   }
 
-  /* ===== HEADER ===== */
-  .header {
-    padding: 16px 16px 8px;
+  /* ── TABS ── */
+  .tab-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--tab-h);
+    background: var(--bg2);
+    border-top: 1px solid var(--divider);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--hint);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.18s;
+    padding-bottom: 4px;
+  }
+  .tab-btn.active { color: var(--btn); }
+  .tab-btn svg { width: 24px; height: 24px; }
+
+  /* ── SCREENS ── */
+  .screen {
+    display: none;
+    padding: 16px 16px calc(var(--tab-h) + 16px + env(safe-area-inset-bottom, 0px));
+    min-height: 100vh;
+  }
+  .screen.active { display: block; }
+
+  /* ── HEADER ── */
+  .screen-header {
     font-size: 22px;
     font-weight: 700;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.4px;
+    margin-bottom: 16px;
+    padding-top: 8px;
   }
 
-  /* ===== VIEWS ===== */
-  .view { display: none; padding: 0 16px 16px; }
-  .view.active { display: block; }
-
-  /* ===== BOOK CARD ===== */
+  /* ── BOOK CARD ── */
   .book-card {
-    background: var(--bg-secondary);
-    border-radius: var(--card-radius);
+    background: var(--bg2);
+    border-radius: var(--radius);
     padding: 16px;
     margin-bottom: 12px;
-    cursor: pointer;
-    transition: transform 0.15s, opacity 0.15s;
-    position: relative;
+    transition: transform 0.12s;
   }
-  .book-card:active { transform: scale(0.98); opacity: 0.85; }
+  .book-card:active { transform: scale(0.98); }
 
   .book-title {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: 3px;
@@ -67,47 +100,37 @@
   }
 
   /* Progress bars */
-  .progress-group { margin-bottom: 12px; }
-  .progress-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 7px;
-  }
+  .progress-block { margin-bottom: 10px; }
   .progress-label {
+    display: flex;
+    justify-content: space-between;
     font-size: 12px;
     color: var(--hint);
-    width: 90px;
-    flex-shrink: 0;
+    margin-bottom: 5px;
   }
+  .progress-label span:last-child { font-weight: 600; color: var(--text); }
   .progress-track {
-    flex: 1;
     height: 5px;
-    background: rgba(142,142,147,0.2);
-    border-radius: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
     overflow: hidden;
   }
   .progress-fill {
     height: 100%;
-    border-radius: 3px;
-    transition: width 0.5s ease;
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
   }
-  .progress-fill.reading { background: var(--accent); }
-  .progress-fill.tests   { background: #34c759; }
-  .progress-pct {
-    font-size: 12px;
-    color: var(--hint);
-    width: 30px;
-    text-align: right;
-    flex-shrink: 0;
-  }
+  .progress-fill.reading { background: var(--btn); }
+  .progress-fill.tests   { background: #30d158; }
 
   /* Card footer */
   .card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 4px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--divider);
   }
   .book-link {
     font-size: 13px;
@@ -117,207 +140,212 @@
     align-items: center;
     gap: 4px;
   }
-  .book-link:active { opacity: 0.7; }
-  .btn-chapters {
-    background: var(--accent);
-    color: var(--accent-text);
+  .book-link svg { width: 14px; height: 14px; opacity: 0.7; }
+  .chapters-btn {
+    background: var(--btn);
+    color: var(--btn-text);
     border: none;
-    border-radius: 20px;
-    padding: 6px 14px;
+    border-radius: 8px;
+    padding: 7px 14px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: opacity 0.15s;
   }
-  .btn-chapters:active { opacity: 0.8; }
+  .chapters-btn:active { opacity: 0.75; }
 
-  /* ===== CHAPTERS VIEW ===== */
+  /* ── CHAPTERS VIEW ── */
+  #chapters-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    overflow-y: auto;
+    padding: 0 0 32px;
+  }
+  #chapters-screen.active { display: block; }
+
   .chapters-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 16px 16px 8px;
+    gap: 12px;
+    padding: 16px 16px 0;
+    margin-bottom: 16px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    padding-top: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider);
   }
-  .btn-back {
+  .back-btn {
     background: none;
     border: none;
-    color: var(--link);
-    font-size: 16px;
+    color: var(--btn);
+    font-size: 17px;
+    font-weight: 400;
     cursor: pointer;
-    padding: 4px;
     display: flex;
     align-items: center;
     gap: 4px;
+    padding: 4px 0;
+    flex-shrink: 0;
   }
-  .chapters-title {
+  .back-btn svg { width: 18px; height: 18px; }
+  .chapters-title-block { flex: 1; min-width: 0; }
+  .chapters-book-title {
     font-size: 17px;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .chapters-book-author { font-size: 13px; color: var(--hint); }
 
-  .chapter-list { padding: 0 16px 16px; }
   .chapter-item {
     display: flex;
     align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--divider);
     gap: 12px;
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 13px 16px;
-    margin-bottom: 8px;
   }
   .chapter-num {
     width: 28px;
     height: 28px;
-    border-radius: 50%;
-    background: rgba(142,142,147,0.15);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.07);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
-    color: var(--hint);
-    flex-shrink: 0;
-  }
-  .chapter-name { font-size: 15px; }
-
-  /* ===== TESTS VIEW ===== */
-  .section-title {
     font-size: 13px;
     font-weight: 600;
     color: var(--hint);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 16px 0 8px;
-  }
-
-  .test-card {
-    background: var(--bg-secondary);
-    border-radius: var(--card-radius);
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .test-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
     flex-shrink: 0;
   }
-  .test-info { flex: 1; }
-  .test-book-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-  .test-meta { font-size: 12px; color: var(--hint); }
+  .chapter-name { font-size: 15px; font-weight: 500; }
+
+  /* ── TESTS SCREEN ── */
+  .test-card {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .test-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .test-book-name {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    flex: 1;
+  }
   .test-badge {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     padding: 3px 8px;
-    border-radius: 10px;
-    background: rgba(52,199,89,0.15);
-    color: #34c759;
+    border-radius: 99px;
+    flex-shrink: 0;
   }
-  .test-badge.pending {
-    background: rgba(255,159,10,0.15);
-    color: #ff9f0a;
-  }
+  .test-badge.done { background: rgba(48,209,88,0.15); color: #30d158; }
+  .test-badge.new  { background: rgba(10,132,255,0.15); color: var(--link); }
+  .test-badge.none { background: rgba(255,255,255,0.08); color: var(--hint); }
 
-  /* Empty state */
-  .empty {
-    text-align: center;
+  .test-question {
+    font-size: 14px;
     color: var(--hint);
-    padding: 60px 20px;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .start-test-btn {
+    width: 100%;
+    background: var(--btn);
+    color: var(--btn-text);
+    border: none;
+    border-radius: 10px;
+    padding: 11px;
     font-size: 15px;
-  }
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-
-  /* ===== TAB BAR ===== */
-  .tab-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: calc(var(--tab-h) + env(safe-area-inset-bottom));
-    background: var(--bg-secondary);
-    border-top: 1px solid rgba(142,142,147,0.15);
-    display: flex;
-    padding-bottom: env(safe-area-inset-bottom);
-    z-index: 100;
-  }
-  .tab {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
+    font-weight: 600;
     cursor: pointer;
     transition: opacity 0.15s;
-    border: none;
-    background: none;
-    color: var(--hint);
-    -webkit-tap-highlight-color: transparent;
   }
-  .tab.active { color: var(--accent); }
-  .tab:active { opacity: 0.7; }
-  .tab-icon { font-size: 22px; line-height: 1; }
-  .tab-label { font-size: 10px; font-weight: 500; }
+  .start-test-btn:active { opacity: 0.75; }
+  .start-test-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--hint);
+  }
+  .empty-state svg { width: 48px; height: 48px; opacity: 0.3; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
 </style>
 </head>
 <body>
 
-<!-- BOOKS VIEW -->
-<div id="view-books" class="view active">
-  <div class="header">📚 Книги</div>
+<!-- ══ SCREEN: BOOKS ══ -->
+<div id="screen-books" class="screen active">
+  <div class="screen-header">📚 Мои книги</div>
   <div id="books-list"></div>
 </div>
 
-<!-- CHAPTERS VIEW -->
-<div id="view-chapters" class="view">
-  <div class="chapters-header">
-    <button class="btn-back" id="btn-back">
-      <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
-        <path d="M8.5 1L1.5 8L8.5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Назад
-    </button>
-    <div class="chapters-title" id="chapters-title"></div>
-  </div>
-  <div class="chapter-list" id="chapters-list"></div>
-</div>
-
-<!-- TESTS VIEW -->
-<div id="view-tests" class="view">
-  <div class="header">✏️ Тесты</div>
+<!-- ══ SCREEN: TESTS ══ -->
+<div id="screen-tests" class="screen">
+  <div class="screen-header">✏️ Тесты</div>
   <div id="tests-list"></div>
 </div>
 
-<!-- TAB BAR -->
-<div class="tab-bar">
-  <button class="tab active" data-tab="books">
-    <span class="tab-icon">📚</span>
-    <span class="tab-label">Книги</span>
-  </button>
-  <button class="tab" data-tab="tests">
-    <span class="tab-icon">✏️</span>
-    <span class="tab-label">Тесты</span>
-  </button>
+<!-- ══ CHAPTERS OVERLAY ══ -->
+<div id="chapters-screen">
+  <div class="chapters-header">
+    <button class="back-btn" onclick="closeChapters()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Назад
+    </button>
+    <div class="chapters-title-block">
+      <div class="chapters-book-title" id="chapters-title">—</div>
+      <div class="chapters-book-author" id="chapters-author">—</div>
+    </div>
+  </div>
+  <div id="chapters-list"></div>
 </div>
 
+<!-- ══ TAB BAR ══ -->
+<nav class="tab-bar">
+  <button class="tab-btn active" id="tab-books" onclick="switchTab('books')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+    Книги
+  </button>
+  <button class="tab-btn" id="tab-tests" onclick="switchTab('tests')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 11l3 3L22 4"/>
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </svg>
+    Тесты
+  </button>
+</nav>
+
 <script>
-// ── Init Telegram WebApp ───────────────────────────────────────────────────
+// ── TELEGRAM INIT ──
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
 }
 
-// ── Mock data ──────────────────────────────────────────────────────────────
+// ── MOCK DATA ──
 const books = [
   {
     id: 1,
@@ -326,180 +354,185 @@ const books = [
     reading_progress: 60,
     test_progress: 30,
     url: "https://books.google.com/books?id=XfFvDwAAQBAJ",
-    chapters: ["Глава 1. Удивительная сила атомных привычек", "Глава 2. Как работает мозг при формировании привычек", "Глава 3. Первый закон: сделайте привычку очевидной", "Глава 4. Второй закон: сделайте привычку привлекательной", "Глава 5. Третий закон: сделайте привычку простой"]
+    chapters: [
+      "Глава 1. Удивительная сила крошечных привычек",
+      "Глава 2. Как ваши привычки формируют вашу идентичность",
+      "Глава 3. Как создать лучшие привычки за 4 шага",
+      "Глава 4. Человек, который не смотрел телевизор",
+      "Глава 5. Лучший способ начать новую привычку",
+    ]
   },
   {
     id: 2,
-    title: "Думай медленно... решай быстро",
+    title: "Думай медленно… решай быстро",
     author: "Даниэль Канеман",
     reading_progress: 20,
     test_progress: 0,
-    url: "https://books.google.com/books?id=TA7Q_ZoyaloC",
-    chapters: ["Глава 1. Два персонажа истории", "Глава 2. Внимание и усилие", "Глава 3. Ленивый контролёр", "Глава 4. Ассоциативная машина", "Глава 5. Когнитивная лёгкость", "Глава 6. Нормы, неожиданности и причины"]
+    url: "https://books.google.com/books?id=ZuKTvERuPG8C",
+    chapters: [
+      "Глава 1. Действующие лица истории",
+      "Глава 2. Внимание и усилие",
+      "Глава 3. Ленивый контролёр",
+    ]
   },
   {
     id: 3,
-    title: "Сапиенс",
-    author: "Юваль Ной Харари",
-    reading_progress: 85,
-    test_progress: 70,
-    url: "https://books.google.com/books?id=1EiJAwAAQBAJ",
-    chapters: ["Часть 1. Когнитивная революция", "Часть 2. Сельскохозяйственная революция", "Часть 3. Объединение человечества", "Часть 4. Научная революция"]
+    title: "Чёрный лебедь",
+    author: "Нассим Николас Талеб",
+    reading_progress: 0,
+    test_progress: 0,
+    url: "https://books.google.com/books?id=GSBcQgAACAAJ",
+    chapters: [
+      "Глава 1. Урок птицы",
+      "Глава 2. Эрудит из Шарпеля",
+      "Глава 3. Умозаключение и гадалка",
+      "Глава 4. Тысяча и один день",
+      "Глава 5. Подтверждение и пустой костюм",
+      "Глава 6. Нарративная ошибка",
+    ]
   }
 ];
 
 const tests = [
-  { id: 1, book_id: 1, questions: 12, completed: 4, status: "progress" },
-  { id: 2, book_id: 3, questions: 10, completed: 7, status: "progress" },
-  { id: 3, book_id: 2, questions: 8, completed: 0, status: "pending" }
+  {
+    book_id: 1,
+    question: "Какой % привычек формируется автоматически после 66 дней повторений?",
+    status: "new"
+  },
+  {
+    book_id: 1,
+    question: "Назовите 4 закона изменения поведения по Джеймсу Клиру.",
+    status: "done"
+  },
+  {
+    book_id: 2,
+    question: "В чём разница между Системой 1 и Системой 2 по Канеману?",
+    status: "none"
+  }
 ];
 
-// ── State ──────────────────────────────────────────────────────────────────
-let activeTab = "books";
-let previousView = null;
-
-// ── Render books ───────────────────────────────────────────────────────────
+// ── RENDER BOOKS ──
 function renderBooks() {
-  const container = document.getElementById("books-list");
+  const list = document.getElementById('books-list');
   if (!books.length) {
-    container.innerHTML = '<div class="empty"><div class="empty-icon">📖</div>Книг пока нет.<br>Добавьте первую через бот.</div>';
+    list.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <p>Книг пока нет.<br>Добавь первую в боте.</p>
+    </div>`;
     return;
   }
-  container.innerHTML = books.map(book => `
-    <div class="book-card" data-id="${book.id}">
-      <div class="book-title">${escHtml(book.title)}</div>
-      <div class="book-author">${escHtml(book.author)}</div>
 
-      <div class="progress-group">
-        <div class="progress-row">
-          <span class="progress-label">📖 Чтение</span>
-          <div class="progress-track">
-            <div class="progress-fill reading" style="width:${book.reading_progress}%"></div>
-          </div>
-          <span class="progress-pct">${book.reading_progress}%</span>
+  list.innerHTML = books.map(b => `
+    <div class="book-card">
+      <div class="book-title">${escHtml(b.title)}</div>
+      <div class="book-author">${escHtml(b.author)}</div>
+
+      <div class="progress-block">
+        <div class="progress-label">
+          <span>Чтение</span>
+          <span>${b.reading_progress}%</span>
         </div>
-        <div class="progress-row">
-          <span class="progress-label">✏️ Тесты</span>
-          <div class="progress-track">
-            <div class="progress-fill tests" style="width:${book.test_progress}%"></div>
-          </div>
-          <span class="progress-pct">${book.test_progress}%</span>
+        <div class="progress-track">
+          <div class="progress-fill reading" style="width:${b.reading_progress}%"></div>
+        </div>
+      </div>
+
+      <div class="progress-block">
+        <div class="progress-label">
+          <span>Тесты</span>
+          <span>${b.test_progress}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill tests" style="width:${b.test_progress}%"></div>
         </div>
       </div>
 
       <div class="card-footer">
-        ${book.url
-          ? `<a class="book-link" href="${book.url}" target="_blank" onclick="event.stopPropagation()">
-               🔗 Источник
-             </a>`
-          : `<span></span>`
-        }
-        <button class="btn-chapters" onclick="event.stopPropagation(); openChapters(${book.id})">
-          Главы
-        </button>
+        <a class="book-link" href="${escHtml(b.url)}" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Источник
+        </a>
+        <button class="chapters-btn" onclick="openChapters(${b.id})">Главы →</button>
       </div>
     </div>
-  `).join("");
+  `).join('');
 }
 
-// ── Render chapters ────────────────────────────────────────────────────────
+// ── RENDER TESTS ──
+function renderTests() {
+  const list = document.getElementById('tests-list');
+  if (!tests.length) {
+    list.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <p>Тестов пока нет.<br>Они появятся после добавления книги.</p>
+    </div>`;
+    return;
+  }
+
+  const badgeMap = { done: ['done','✓ Пройден'], new: ['new','Новый'], none: ['none','Не начат'] };
+
+  list.innerHTML = tests.map(t => {
+    const book = books.find(b => b.id === t.book_id);
+    const [cls, label] = badgeMap[t.status] || badgeMap.none;
+    return `
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-book-name">${escHtml(book ? book.title : 'Неизвестная книга')}</div>
+          <span class="test-badge ${cls}">${label}</span>
+        </div>
+        <div class="test-question">${escHtml(t.question)}</div>
+        <button class="start-test-btn" ${t.status === 'done' ? 'disabled' : ''}>
+          ${t.status === 'done' ? 'Пройдено' : 'Начать тест'}
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── CHAPTERS ──
 function openChapters(bookId) {
   const book = books.find(b => b.id === bookId);
   if (!book) return;
 
-  document.getElementById("chapters-title").textContent = book.title;
-  const list = document.getElementById("chapters-list");
-  list.innerHTML = book.chapters.map((ch, i) => `
+  document.getElementById('chapters-title').textContent = book.title;
+  document.getElementById('chapters-author').textContent = book.author;
+
+  document.getElementById('chapters-list').innerHTML = book.chapters.map((ch, i) => `
     <div class="chapter-item">
       <div class="chapter-num">${i + 1}</div>
       <div class="chapter-name">${escHtml(ch)}</div>
     </div>
-  `).join("");
+  `).join('');
 
-  previousView = "books";
-  showView("chapters");
-  // Hide tab bar while in chapters
-  document.querySelector(".tab-bar").style.display = "none";
+  document.getElementById('chapters-screen').classList.add('active');
+  if (tg) tg.BackButton.show();
+  if (tg) tg.BackButton.onClick(closeChapters);
 }
 
-document.getElementById("btn-back").addEventListener("click", () => {
-  document.querySelector(".tab-bar").style.display = "flex";
-  showView(previousView || "books");
-  previousView = null;
-});
-
-// ── Render tests ───────────────────────────────────────────────────────────
-function renderTests() {
-  const container = document.getElementById("tests-list");
-  if (!tests.length) {
-    container.innerHTML = '<div class="empty"><div class="empty-icon">✏️</div>Тестов пока нет.</div>';
-    return;
-  }
-
-  const inProgress = tests.filter(t => t.status === "progress");
-  const pending    = tests.filter(t => t.status === "pending");
-
-  let html = "";
-
-  if (inProgress.length) {
-    html += '<div class="section-title">В процессе</div>';
-    html += inProgress.map(t => renderTestCard(t)).join("");
-  }
-  if (pending.length) {
-    html += '<div class="section-title">Не начаты</div>';
-    html += pending.map(t => renderTestCard(t)).join("");
-  }
-
-  container.innerHTML = html;
+function closeChapters() {
+  document.getElementById('chapters-screen').classList.remove('active');
+  if (tg) tg.BackButton.hide();
 }
 
-function renderTestCard(test) {
-  const book = books.find(b => b.id === test.book_id) || {};
-  const pct = test.questions ? Math.round(test.completed / test.questions * 100) : 0;
-  const statusText = test.status === "progress"
-    ? `${test.completed} / ${test.questions} вопросов`
-    : `${test.questions} вопросов`;
-  const badgeClass = test.status === "progress" ? "" : "pending";
-  const badgeText  = test.status === "progress" ? `${pct}%` : "Начать";
-
-  return `
-    <div class="test-card">
-      <div class="test-icon">📝</div>
-      <div class="test-info">
-        <div class="test-book-title">${escHtml(book.title || "Книга")}</div>
-        <div class="test-meta">${escHtml(statusText)}</div>
-      </div>
-      <div class="test-badge ${badgeClass}">${badgeText}</div>
-    </div>
-  `;
-}
-
-// ── Navigation ─────────────────────────────────────────────────────────────
-function showView(name) {
-  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-  document.getElementById(`view-${name}`).classList.add("active");
-  activeTab = name;
-}
-
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    const name = tab.dataset.tab;
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    showView(name);
+// ── TABS ──
+function switchTab(name) {
+  ['books', 'tests'].forEach(t => {
+    document.getElementById('screen-' + t).classList.toggle('active', t === name);
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
   });
-});
+}
 
-// ── Utils ──────────────────────────────────────────────────────────────────
+// ── UTILS ──
 function escHtml(str) {
   return String(str)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;");
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── Boot ───────────────────────────────────────────────────────────────────
+// ── INIT ──
 renderBooks();
 renderTests();
 </script>
