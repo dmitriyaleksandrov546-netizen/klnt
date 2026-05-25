@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<title>KLINT · Premium 3D Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#05060a;
+    --ink:#f3f5f4;
+    --muted:#7a8275;
+    --accent:#a8ff60;
+    --accent2:#7effd4;
+    --line:rgba(255,255,255,0.08);
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; background:var(--bg); color:var(--ink); font-family:'Manrope',sans-serif; overflow:hidden; }
+  body { cursor:none; }
+
+  /* Шум-оверлей: kino-grain поверх всего */
+  .grain { position:fixed; inset:-50%; pointer-events:none; z-index:50; opacity:.07;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.9'/></svg>");
+    animation:grainShift 600ms steps(2) infinite;
+    mix-blend-mode:overlay;
+  }
+  @keyframes grainShift { 0%{transform:translate(0,0)} 50%{transform:translate(-2%,1%)} 100%{transform:translate(1%,-2%)} }
+
+  /* Кастомный cursor */
+  .cursor-dot, .cursor-ring { position:fixed; pointer-events:none; z-index:100; mix-blend-mode:difference; }
+  .cursor-dot { width:6px; height:6px; background:#fff; border-radius:50%; transform:translate(-50%,-50%); }
+  .cursor-ring { width:36px; height:36px; border:1px solid rgba(255,255,255,.7); border-radius:50%; transform:translate(-50%,-50%); transition:width .25s ease,height .25s ease,opacity .2s ease; }
+  .cursor-ring.hover { width:64px; height:64px; }
+
+  /* Canvas в фон под весь экран */
+  #scene { position:fixed; inset:0; z-index:1; }
+
+  /* HUD над сценой */
+  .hud { position:relative; z-index:10; height:100vh; display:flex; flex-direction:column; padding:32px 48px; pointer-events:none; }
+  .hud > * { pointer-events:auto; }
+
+  .topbar { display:flex; justify-content:space-between; align-items:center; }
+  .brand { font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:.25em; opacity:.9; }
+  .brand .dot { display:inline-block; width:6px; height:6px; background:var(--accent); border-radius:50%; margin-right:10px; transform:translateY(-2px); animation:pulse 2.2s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:.4; transform:translateY(-2px) scale(1)} 50%{opacity:1; transform:translateY(-2px) scale(1.4)} }
+  .nav { display:flex; gap:28px; font-size:12px; letter-spacing:.2em; opacity:.85; }
+  .nav a { color:inherit; text-decoration:none; position:relative; padding:6px 0; transition:opacity .2s; }
+  .nav a::after { content:''; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--accent); transition:width .35s ease; }
+  .nav a:hover { opacity:1; }
+  .nav a:hover::after { width:100%; }
+
+  .center { flex:1; display:grid; grid-template-columns:1fr; align-items:end; padding-bottom:6vh; }
+
+  /* Огромная фоновая надпись KLINT */
+  .ghosted {
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    font-family:'Manrope', sans-serif; font-weight:800; font-size:clamp(140px, 24vw, 360px);
+    line-height:.85; letter-spacing:-.05em; color:transparent;
+    -webkit-text-stroke:1px rgba(255,255,255,0.06);
+    pointer-events:none; user-select:none; white-space:nowrap;
+    z-index:5;
+  }
+
+  .copy { z-index:11; max-width:540px; }
+  .eyebrow { font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.4em; color:var(--muted); margin-bottom:18px; text-transform:uppercase; }
+  .eyebrow span { color:var(--accent); }
+  .headline { font-size:clamp(40px, 5.6vw, 80px); font-weight:300; line-height:.96; letter-spacing:-.03em; margin-bottom:22px; }
+  .headline em { font-style:normal; font-weight:800; background:linear-gradient(180deg,#fff 0%,#9aa3a0 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lede { font-size:15px; line-height:1.6; color:var(--muted); max-width:420px; margin-bottom:32px; }
+
+  .cta-row { display:flex; gap:14px; align-items:center; }
+  .btn { display:inline-flex; align-items:center; gap:12px; padding:14px 22px; border:1px solid var(--line); border-radius:999px; font-size:13px; letter-spacing:.15em; text-transform:uppercase; text-decoration:none; color:var(--ink); transition:transform .35s cubic-bezier(.22,1,.36,1), background .35s, border-color .35s; }
+  .btn:hover { transform:translateY(-2px); background:#0e1117; border-color:#1b2027; }
+  .btn.primary { background:var(--accent); color:#06120a; border-color:var(--accent); }
+  .btn.primary:hover { background:#bcff75; }
+  .btn .arrow { display:inline-block; width:18px; height:1px; background:currentColor; position:relative; }
+  .btn .arrow::after { content:''; position:absolute; right:0; top:-3px; width:6px; height:6px; border-top:1px solid currentColor; border-right:1px solid currentColor; transform:rotate(45deg); }
+
+  .meta { z-index:11; align-self:end; display:flex; gap:48px; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:.25em; color:var(--muted); text-transform:uppercase; }
+  .meta b { display:block; color:var(--ink); font-family:'Manrope', sans-serif; font-weight:800; font-size:28px; letter-spacing:-.02em; margin-bottom:6px; text-transform:none; }
+  .meta b span { color:var(--accent); }
+
+  .bottombar { display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:.25em; color:var(--muted); text-transform:uppercase; }
+  .bottombar .scroll-hint { display:inline-flex; align-items:center; gap:10px; }
+  .bottombar .scroll-hint .bar { width:42px; height:1px; background:#2a2f37; overflow:hidden; position:relative; }
+  .bottombar .scroll-hint .bar::before { content:''; position:absolute; left:0; top:0; height:100%; width:30%; background:var(--accent); animation:scrollBar 2.4s ease-in-out infinite; }
+  @keyframes scrollBar { 0%{left:-30%} 100%{left:100%} }
+
+  @media (max-width:760px) {
+    .hud { padding:20px 22px; }
+    .nav { display:none; }
+    .meta { display:none; }
+    .ghosted { font-size:42vw; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<canvas id="scene"></canvas>
+
+<div class="hud">
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span>KLINT · SWEDEN — RU 2026</div>
+    <nav class="nav" aria-label="primary">
+      <a href="../">Lite</a>
+      <a href="#flavors" data-hover>Flavors</a>
+      <a href="#about" data-hover>About</a>
+      <a href="#shop" data-hover>Shop</a>
+    </nav>
+  </div>
+
+  <div class="center">
+    <div class="ghosted" id="ghosted">KLINT</div>
+    <div class="copy">
+      <div class="eyebrow"><span>●</span>&nbsp;&nbsp;Premium pouches&nbsp;·&nbsp;0% tobacco</div>
+      <h1 class="headline">Настоящая <em>премиум-база</em><br>теперь в России.</h1>
+      <p class="lede">Никотиновые паучи KLINT. Сделано в Швеции. Семь вкусов мяты, льда и колы. Без табака. Без компромиссов.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#flavors" data-hover>Выбрать вкус <span class="arrow"></span></a>
+        <a class="btn" href="../" data-hover>Lite-версия</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottombar">
+    <div>v3.0 · WebGL · 60fps target</div>
+    <div class="scroll-hint">Сдвинь мышь &nbsp;<span class="bar"></span></div>
+    <div class="meta-inline">Frame · 0001 / 0007</div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// ───────── базовая сцена ─────────
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
+camera.position.set(0, 0.3, 4.2);
+
+// IBL для металлических бликов
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+// ───────── баночка KLINT ─────────
+const can = new THREE.Group();
+scene.add(can);
+
+const radius = 1.0;
+const height = 0.42;
+
+// корпус (зелёный матовый металл)
+const bodyGeo = new THREE.CylinderGeometry(radius, radius, height, 96, 1, true);
+const bodyMat = new THREE.MeshPhysicalMaterial({
+  color: 0x0d2418,
+  metalness: 0.35,
+  roughness: 0.45,
+  clearcoat: 0.6,
+  clearcoatRoughness: 0.25,
+});
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+can.add(body);
+
+// верх (ярко-зелёная крышка с тиснением)
+const topGeo = new THREE.CylinderGeometry(radius, radius, 0.04, 96);
+const topMat = new THREE.MeshPhysicalMaterial({
+  color: 0x7effd4,
+  metalness: 0.2,
+  roughness: 0.28,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.1,
+  emissive: 0x0a3326,
+  emissiveIntensity: 0.45,
+});
+const top = new THREE.Mesh(topGeo, topMat);
+top.position.y = height/2 + 0.02;
+can.add(top);
+
+// нижняя крышка
+const bottomMat = new THREE.MeshPhysicalMaterial({ color:0x05140c, metalness:0.6, roughness:0.5 });
+const bottom = new THREE.Mesh(topGeo, bottomMat);
+bottom.position.y = -height/2 - 0.02;
+can.add(bottom);
+
+// ободок света сверху
+const ringGeo = new THREE.TorusGeometry(radius+0.005, 0.012, 12, 96);
+const ringMat = new THREE.MeshBasicMaterial({ color:0xa8ff60 });
+const ring = new THREE.Mesh(ringGeo, ringMat);
+ring.rotation.x = Math.PI/2;
+ring.position.y = height/2 + 0.04;
+can.add(ring);
+
+// текстура лейбла на корпусе (procedural canvas)
+const labelCanvas = document.createElement('canvas');
+labelCanvas.width = 2048; labelCanvas.height = 512;
+const ctx = labelCanvas.getContext('2d');
+ctx.fillStyle = '#0d2418';
+ctx.fillRect(0,0,labelCanvas.width, labelCanvas.height);
+// большой K-LINT
+ctx.fillStyle = '#a8ff60';
+ctx.font = 'bold 280px Manrope, sans-serif';
+ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+ctx.fillText('KLINT', labelCanvas.width/2, labelCanvas.height/2 - 30);
+// подпись
+ctx.fillStyle = '#7a8275';
+ctx.font = '500 56px Manrope, sans-serif';
+ctx.fillText('SLIM · NICOTINE POUCHES · SWEDEN', labelCanvas.width/2, labelCanvas.height/2 + 130);
+// тонкие линии-обрамления
+ctx.strokeStyle = 'rgba(168,255,96,0.4)'; ctx.lineWidth = 4;
+ctx.beginPath(); ctx.moveTo(120, 60); ctx.lineTo(labelCanvas.width-120, 60); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(120, labelCanvas.height-60); ctx.lineTo(labelCanvas.width-120, labelCanvas.height-60); ctx.stroke();
+
+const labelTex = new THREE.CanvasTexture(labelCanvas);
+labelTex.colorSpace = THREE.SRGBColorSpace;
+labelTex.wrapS = THREE.RepeatWrapping;
+labelTex.repeat.x = 1;
+bodyMat.map = labelTex;
+bodyMat.needsUpdate = true;
+
+// свет
+const key = new THREE.DirectionalLight(0xffffff, 1.2);
+key.position.set(3, 4, 5);
+scene.add(key);
+const fill = new THREE.DirectionalLight(0x7effd4, 0.6);
+fill.position.set(-4, 2, -2);
+scene.add(fill);
+const rim = new THREE.PointLight(0xa8ff60, 1.4, 8);
+rim.position.set(0, 0, -3);
+scene.add(rim);
+scene.add(new THREE.AmbientLight(0x101820, 0.4));
+
+// частицы — пыль в воздухе
+const dustGeo = new THREE.BufferGeometry();
+const dustCount = 180;
+const dustPos = new Float32Array(dustCount*3);
+for (let i=0; i<dustCount; i++) {
+  dustPos[i*3+0] = (Math.random()-0.5)*8;
+  dustPos[i*3+1] = (Math.random()-0.5)*5;
+  dustPos[i*3+2] = (Math.random()-0.5)*6 - 1;
+}
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dustMat = new THREE.PointsMaterial({ color:0xa8ff60, size:0.012, transparent:true, opacity:0.6, depthWrite:false });
+const dust = new THREE.Points(dustGeo, dustMat);
+scene.add(dust);
+
+// небольшой наклон стартовый
+can.rotation.x = -0.18;
+can.rotation.z = 0.05;
+
+// ───────── вход: всё вылетает на экран ─────────
+gsap.from(can.position, { y:-1.6, duration:1.6, ease:'expo.out' });
+gsap.from(can.rotation, { y: -Math.PI*1.4, duration:2.2, ease:'expo.out' });
+gsap.from(can.scale, { x:0.6, y:0.6, z:0.6, duration:1.6, ease:'expo.out' });
+
+// типографика входит staggered
+gsap.from('.brand', { y:-20, opacity:0, duration:.9, delay:.3, ease:'expo.out' });
+gsap.from('.nav a', { y:-12, opacity:0, duration:.7, delay:.45, stagger:.06, ease:'expo.out' });
+gsap.from('.eyebrow', { y:24, opacity:0, duration:.9, delay:.5, ease:'expo.out' });
+gsap.from('.headline', { y:48, opacity:0, duration:1.1, delay:.6, ease:'expo.out' });
+gsap.from('.lede', { y:24, opacity:0, duration:.9, delay:.85, ease:'expo.out' });
+gsap.from('.cta-row .btn', { y:18, opacity:0, duration:.8, delay:1, stagger:.08, ease:'expo.out' });
+gsap.from('.ghosted', { opacity:0, scale:1.15, duration:1.6, delay:.2, ease:'expo.out' });
+gsap.from('.bottombar > *', { y:20, opacity:0, duration:.7, delay:1.1, stagger:.08, ease:'expo.out' });
+
+// ghosted параллакс через указатель
+const ghosted = document.getElementById('ghosted');
+
+// ───────── взаимодействие: mouse → камера + можно крутить ─────────
+const mouse = new THREE.Vector2(0,0);
+const target = new THREE.Vector2(0,0);
+window.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -((e.clientY / window.innerHeight) * 2 - 1);
+});
+
+// ───────── кастомный cursor ─────────
+const ringEl = document.getElementById('cursorRing');
+const dotEl  = document.getElementById('cursorDot');
+let cx=0, cy=0, rx=0, ry=0;
+window.addEventListener('mousemove', e => { cx=e.clientX; cy=e.clientY; dotEl.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`; });
+function followRing(){ rx += (cx-rx)*0.18; ry += (cy-ry)*0.18; ringEl.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`; requestAnimationFrame(followRing); }
+followRing();
+document.querySelectorAll('[data-hover], .btn, .nav a').forEach(el => {
+  el.addEventListener('mouseenter', ()=> ringEl.classList.add('hover'));
+  el.addEventListener('mouseleave', ()=> ringEl.classList.remove('hover'));
+});
+
+// ───────── анимация ─────────
+const clock = new THREE.Clock();
+function tick(){
+  const t = clock.getElapsedTime();
+
+  // плавный follow мыши на цели
+  target.lerp(mouse, 0.06);
+
+  // авто-вращение + лёгкий парралакс от мыши
+  can.rotation.y += 0.0035;
+  can.rotation.x = -0.18 + target.y * 0.18;
+  can.position.y = Math.sin(t * 0.8) * 0.04;
+
+  // камера дышит
+  camera.position.x = target.x * 0.5;
+  camera.position.y = 0.3 + target.y * 0.25;
+  camera.lookAt(0,0,0);
+
+  // пыль медленно дрейфует
+  dust.rotation.y = t * 0.02;
+
+  // ghosted-надпись параллаксит
+  if (ghosted) ghosted.style.transform = `translate(calc(-50% + ${target.x*-30}px), calc(-50% + ${target.y*-15}px))`;
+
+  // ободок пульсирует
+  ring.scale.setScalar(1 + Math.sin(t * 2.0) * 0.012);
+  ringMat.color.setHSL(0.32, 0.9, 0.55 + Math.sin(t * 1.7) * 0.12);
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+tick();
+
+// ───────── resize ─────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ───────── клик на сцене — крутнём баночку ─────────
+canvas.addEventListener('click', () => {
+  gsap.to(can.rotation, { y: can.rotation.y + Math.PI*2, duration: 1.4, ease:'expo.out' });
+});
+</script>
+
+</body>
+</html>
