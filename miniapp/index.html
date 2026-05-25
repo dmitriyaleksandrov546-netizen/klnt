@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookBot</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      var(--tg-theme-bg-color, #1c1c1e);
+    --bg2:     var(--tg-theme-secondary-bg-color, #2c2c2e);
+    --text:    var(--tg-theme-text-color, #ffffff);
+    --hint:    var(--tg-theme-hint-color, #8e8e93);
+    --link:    var(--tg-theme-link-color, #0a84ff);
+    --btn:     var(--tg-theme-button-color, #0a84ff);
+    --btn-txt: var(--tg-theme-button-text-color, #ffffff);
+    --radius:  16px;
+    --nav-h:   64px;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    overflow: hidden;
+  }
+
+  /* ── Layout ── */
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .screen {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px calc(var(--nav-h) + 16px);
+  }
+  .screen.active { display: block; }
+
+  /* ── Bottom Nav ── */
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    background: var(--bg2);
+    display: flex;
+    border-top: 1px solid rgba(255,255,255,.08);
+    z-index: 100;
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--hint);
+    font-size: 11px;
+    cursor: pointer;
+    transition: color .2s;
+  }
+  .nav-btn.active { color: var(--btn); }
+  .nav-btn svg { width: 24px; height: 24px; }
+
+  /* ── Book Card ── */
+  .book-card {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .book-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .book-author {
+    font-size: 13px;
+    color: var(--hint);
+    margin-bottom: 12px;
+  }
+
+  /* ── Progress ── */
+  .progress-row {
+    margin-bottom: 8px;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--hint);
+    margin-bottom: 4px;
+  }
+  .progress-track {
+    height: 6px;
+    background: rgba(255,255,255,.1);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+  .progress-fill.read  { background: var(--btn); }
+  .progress-fill.tests { background: #30d158; }
+
+  /* ── Card footer ── */
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    gap: 8px;
+  }
+  .source-link {
+    font-size: 12px;
+    color: var(--link);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .btn-chapters {
+    flex-shrink: 0;
+    background: var(--btn);
+    color: var(--btn-txt);
+    border: none;
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* ── Chapters view ── */
+  #chapters-screen {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px calc(var(--nav-h) + 16px);
+  }
+  #chapters-screen.active { display: block; }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--link);
+    font-size: 15px;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 16px;
+  }
+  .chapters-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .chapters-author {
+    font-size: 13px;
+    color: var(--hint);
+    margin-bottom: 16px;
+  }
+  .chapter-item {
+    background: var(--bg2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  /* ── Tests screen ── */
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .test-card {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .test-book-name {
+    font-size: 13px;
+    color: var(--hint);
+    margin-bottom: 4px;
+  }
+  .test-question {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .test-options { display: flex; flex-direction: column; gap: 8px; }
+  .test-option {
+    background: rgba(255,255,255,.06);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .test-option:active { background: rgba(10,132,255,.25); }
+  .test-option.correct { background: rgba(48,209,88,.25); }
+  .test-option.wrong   { background: rgba(255,69,58,.25); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--hint);
+    padding: 40px 20px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ SCREEN: Books ══ -->
+  <div id="books-screen" class="screen active">
+    <div style="font-size:20px;font-weight:700;margin-bottom:16px">📚 Мои книги</div>
+    <div id="books-list"></div>
+  </div>
+
+  <!-- ══ SCREEN: Chapters (detail) ══ -->
+  <div id="chapters-screen">
+    <button class="back-btn" onclick="showBooks()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M15 18l-6-6 6-6"/></svg>
+      Назад
+    </button>
+    <div class="chapters-title" id="ch-title"></div>
+    <div class="chapters-author" id="ch-author"></div>
+    <div id="ch-list"></div>
+  </div>
+
+  <!-- ══ SCREEN: Tests ══ -->
+  <div id="tests-screen" class="screen">
+    <div class="section-title">📝 Тесты</div>
+    <div id="tests-list"></div>
+  </div>
+
+  <!-- ══ Bottom Nav ══ -->
+  <nav>
+    <button class="nav-btn active" id="nav-books" onclick="switchTab('books')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Книги
+    </button>
+    <button class="nav-btn" id="nav-tests" onclick="switchTab('tests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Тесты
+    </button>
+  </nav>
+
+</div>
+
+<script>
+// ── Telegram WebApp init ──
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
+
+// ── Mock data ──
+const books = [
+  {
+    id: 1,
+    title: "Атомные привычки",
+    author: "Джеймс Клир",
+    reading_progress: 60,
+    test_progress: 30,
+    url: "https://books.google.com/books?id=lFhbDwAAQBAJ",
+    chapters: ["Введение", "Глава 1. Удивительная сила крошечных изменений", "Глава 2. Как формируются привычки", "Глава 3. Четыре закона изменения поведения", "Глава 4. Сделай это очевидным", "Глава 5. Сделай это привлекательным", "Глава 6. Сделай это простым", "Глава 7. Сделай это приятным"]
+  },
+  {
+    id: 2,
+    title: "Думай медленно... решай быстро",
+    author: "Даниэль Канеман",
+    reading_progress: 20,
+    test_progress: 0,
+    url: "https://books.google.com/books?id=thinking-fast-and-slow",
+    chapters: ["Введение", "Глава 1. Два вида мышления", "Глава 2. Внимание и усилие", "Глава 3. Ленивый контролёр", "Глава 4. Ассоциативная машина", "Глава 5. Когнитивная лёгкость"]
+  }
+];
+
+const tests = [
+  {
+    book_id: 1,
+    question: "Сколько дней нужно для формирования привычки по Джеймсу Клиру?",
+    options: ["21 день", "66 дней — среднее, у всех по-разному", "90 дней", "7 дней"],
+    correct: 1
+  },
+  {
+    book_id: 1,
+    question: "Какой из законов НЕ входит в систему «4 закона изменения поведения»?",
+    options: ["Сделай это очевидным", "Сделай это сложным", "Сделай это приятным", "Сделай это простым"],
+    correct: 1
+  },
+  {
+    book_id: 2,
+    question: "Как Канеман называет быстрое интуитивное мышление?",
+    options: ["Система А", "Система 1", "Система X", "Дельта-мышление"],
+    correct: 1
+  }
+];
+
+// ── Render books ──
+function renderBooks() {
+  const list = document.getElementById('books-list');
+  if (!books.length) {
+    list.innerHTML = '<div class="empty-state">Книг пока нет.<br>Отправьте боту название книги голосом или текстом.</div>';
+    return;
+  }
+  list.innerHTML = books.map(b => `
+    <div class="book-card">
+      <div class="book-title">${escHtml(b.title)}</div>
+      <div class="book-author">${escHtml(b.author)}</div>
+
+      <div class="progress-row">
+        <div class="progress-label">
+          <span>Прочитано</span><span>${b.reading_progress}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill read" style="width:${b.reading_progress}%"></div>
+        </div>
+      </div>
+
+      <div class="progress-row">
+        <div class="progress-label">
+          <span>Тесты</span><span>${b.test_progress}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill tests" style="width:${b.test_progress}%"></div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <a class="source-link" href="${escHtml(b.url)}" target="_blank">🔗 Открыть книгу</a>
+        <button class="btn-chapters" onclick="showChapters(${b.id})">Главы</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Render tests ──
+function renderTests() {
+  const list = document.getElementById('tests-list');
+  if (!tests.length) {
+    list.innerHTML = '<div class="empty-state">Тестов пока нет.<br>Пройдите хотя бы одну главу.</div>';
+    return;
+  }
+  list.innerHTML = tests.map((t, idx) => {
+    const book = books.find(b => b.id === t.book_id);
+    return `
+      <div class="test-card" id="test-${idx}">
+        <div class="test-book-name">${book ? escHtml(book.title) : ''}</div>
+        <div class="test-question">${escHtml(t.question)}</div>
+        <div class="test-options">
+          ${t.options.map((opt, oi) => `
+            <button class="test-option" onclick="answerTest(${idx}, ${oi})">${escHtml(opt)}</button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function answerTest(testIdx, optionIdx) {
+  const card = document.getElementById(`test-${testIdx}`);
+  const btns = card.querySelectorAll('.test-option');
+  btns.forEach(b => b.disabled = true);
+  btns[optionIdx].classList.add(optionIdx === tests[testIdx].correct ? 'correct' : 'wrong');
+  if (optionIdx !== tests[testIdx].correct) {
+    btns[tests[testIdx].correct].classList.add('correct');
+  }
+}
+
+// ── Chapters detail ──
+function showChapters(bookId) {
+  const book = books.find(b => b.id === bookId);
+  if (!book) return;
+
+  document.getElementById('ch-title').textContent = book.title;
+  document.getElementById('ch-author').textContent = book.author;
+  document.getElementById('ch-list').innerHTML = book.chapters
+    .map((ch, i) => `<div class="chapter-item">📖 ${escHtml(ch)}</div>`)
+    .join('');
+
+  // hide all screens, show chapters
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('chapters-screen').classList.add('active');
+  if (tg?.BackButton) {
+    tg.BackButton.show();
+    tg.BackButton.onClick(showBooks);
+  }
+}
+
+function showBooks() {
+  document.getElementById('chapters-screen').classList.remove('active');
+  document.getElementById('books-screen').classList.add('active');
+  if (tg?.BackButton) tg.BackButton.hide();
+}
+
+// ── Tab switching ──
+function switchTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('chapters-screen').classList.remove('active');
+  document.getElementById(tab + '-screen').classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+}
+
+// ── Utils ──
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Init ──
+renderBooks();
+renderTests();
+</script>
+</body>
+</html>
