@@ -6,6 +6,8 @@
 <title>BookBot</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   :root {
     --bg: var(--tg-theme-bg-color, #1c1c1e);
     --bg2: var(--tg-theme-secondary-bg-color, #2c2c2e);
@@ -17,225 +19,338 @@
     --accent: #0a84ff;
     --green: #30d158;
     --orange: #ff9f0a;
-    --radius: 14px;
-    --tab-h: 60px;
+    --radius: 16px;
+    --nav-h: 64px;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  body {
+  html, body {
+    height: 100%;
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-    font-size: 15px;
-    min-height: 100vh;
-    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
   }
 
-  /* ── HEADER ── */
-  .header {
-    position: sticky; top: 0; z-index: 10;
-    background: var(--bg);
-    padding: 16px 16px 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
-  .header span { color: var(--hint); font-size: 13px; }
-
-  /* ── TABS ── */
-  .tab-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    height: var(--tab-h);
-    background: var(--bg2);
-    border-top: 1px solid rgba(255,255,255,0.08);
+  /* ─── LAYOUT ─── */
+  #app {
     display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .screen {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px calc(var(--nav-h) + 16px);
+    -webkit-overflow-scrolling: touch;
+  }
+  .screen.active { display: block; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    background: var(--bg2);
+    display: flex;
+    border-top: 1px solid rgba(255,255,255,0.07);
     z-index: 100;
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
-  .tab-btn {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; gap: 3px;
-    background: none; border: none; color: var(--hint);
-    font-size: 10px; font-weight: 500; cursor: pointer;
-    transition: color 0.18s;
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--hint);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color .2s;
+    padding-top: 8px;
   }
-  .tab-btn svg { width: 24px; height: 24px; }
-  .tab-btn.active { color: var(--accent); }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn svg { width: 24px; height: 24px; fill: currentColor; }
 
-  /* ── SCREENS ── */
-  .screen { display: none; padding: 12px 16px; padding-bottom: calc(var(--tab-h) + 12px); }
-  .screen.active { display: block; }
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -.5px;
+    margin-bottom: 20px;
+    padding-top: 8px;
+  }
 
-  /* ── BOOK CARD ── */
+  /* ─── BOOK CARD ─── */
   .book-card {
     background: var(--bg2);
     border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 12px;
+    padding: 18px;
+    margin-bottom: 14px;
     cursor: pointer;
-    transition: opacity 0.15s;
-    -webkit-user-select: none; user-select: none;
+    transition: opacity .15s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .book-card:active { opacity: 0.7; }
+  .book-card:active { opacity: .75; }
 
+  .book-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+  .book-meta { flex: 1; }
   .book-title {
-    font-size: 16px; font-weight: 600;
-    letter-spacing: -0.3px; margin-bottom: 2px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 4px;
   }
-  .book-author { color: var(--hint); font-size: 13px; margin-bottom: 14px; }
+  .book-author {
+    font-size: 14px;
+    color: var(--hint);
+  }
+  .book-arrow {
+    color: var(--hint);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .book-arrow svg { width: 18px; height: 18px; fill: currentColor; }
 
-  .progress-row { margin-bottom: 9px; }
-  .progress-label {
-    display: flex; justify-content: space-between;
-    font-size: 12px; color: var(--hint); margin-bottom: 4px;
+  /* Progress bars */
+  .progress-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .progress-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
   }
-  .progress-label b { color: var(--text); }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--hint);
+  }
+  .progress-label span:last-child { font-weight: 600; }
   .progress-track {
-    height: 5px; background: rgba(255,255,255,0.1);
-    border-radius: 3px; overflow: hidden;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
   }
   .progress-fill {
-    height: 100%; border-radius: 3px;
-    transition: width 0.4s ease;
+    height: 100%;
+    border-radius: 3px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
   }
-  .progress-fill.read { background: var(--accent); }
-  .progress-fill.test { background: var(--green); }
+  .progress-fill.reading { background: var(--green); }
+  .progress-fill.tests   { background: var(--orange); }
 
-  .card-footer {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-top: 14px; padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+  /* Book footer */
+  .book-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
   }
-  .source-link {
-    font-size: 12px; color: var(--link);
-    text-decoration: none; display: flex; align-items: center; gap: 4px;
+  .book-link {
+    font-size: 13px;
+    color: var(--link);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
-  .source-link svg { width: 12px; height: 12px; flex-shrink: 0; }
-  .chapters-btn {
-    background: var(--btn); color: var(--btn-text);
-    border: none; border-radius: 8px;
-    padding: 6px 14px; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: opacity 0.15s;
+  .book-link svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+  .btn-chapters {
+    background: var(--btn);
+    color: var(--btn-text);
+    border: none;
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity .15s;
   }
-  .chapters-btn:active { opacity: 0.75; }
+  .btn-chapters:active { opacity: .75; }
 
-  /* ── CHAPTERS VIEW ── */
-  #chapters-view {
-    display: none; position: fixed; inset: 0;
-    background: var(--bg); z-index: 50; overflow-y: auto;
+  /* ─── CHAPTERS VIEW ─── */
+  #view-chapters {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
   }
-  #chapters-view.open { display: block; }
+  #view-chapters.open { display: flex; }
+
   .chapters-header {
-    position: sticky; top: 0; background: var(--bg);
-    padding: 12px 16px 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    display: flex; align-items: center; gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 16px 0;
+    flex-shrink: 0;
   }
-  .back-btn {
-    background: var(--bg2); border: none; color: var(--text);
-    border-radius: 8px; padding: 7px 12px; font-size: 14px; font-weight: 500;
-    cursor: pointer; display: flex; align-items: center; gap: 5px;
-    transition: opacity 0.15s;
+  .btn-back {
+    background: var(--bg2);
+    border: none;
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    -webkit-tap-highlight-color: transparent;
   }
-  .back-btn:active { opacity: 0.7; }
-  .chapters-title { font-size: 16px; font-weight: 700; flex: 1; }
+  .btn-back svg { width: 16px; height: 16px; fill: currentColor; }
+  .chapters-book-title {
+    font-size: 17px;
+    font-weight: 600;
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .chapters-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
   .chapter-item {
-    display: flex; align-items: center;
+    background: var(--bg2);
+    border-radius: 12px;
     padding: 14px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   .chapter-num {
-    width: 28px; height: 28px; border-radius: 8px;
-    background: var(--bg2); display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; color: var(--hint);
-    flex-shrink: 0; margin-right: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--hint);
+    flex-shrink: 0;
   }
-  .chapter-name { font-size: 15px; }
+  .chapter-name { font-size: 15px; font-weight: 500; }
 
-  /* ── TESTS SCREEN ── */
-  .section-label {
-    font-size: 12px; font-weight: 600; color: var(--hint);
-    text-transform: uppercase; letter-spacing: 0.6px;
-    margin-bottom: 8px; margin-top: 4px;
+  /* ─── TESTS ─── */
+  .tests-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 12px;
+    color: var(--hint);
+    text-align: center;
   }
+  .tests-empty svg { width: 56px; height: 56px; fill: var(--hint); opacity: .4; }
+  .tests-empty p { font-size: 16px; max-width: 220px; line-height: 1.5; }
+
   .test-card {
     background: var(--bg2);
     border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom: 10px;
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .test-book { font-size: 13px; color: var(--hint); margin-bottom: 6px; }
+  .test-question { font-size: 16px; font-weight: 600; line-height: 1.4; margin-bottom: 14px; }
+  .test-options { display: flex; flex-direction: column; gap: 8px; }
+  .test-option {
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
     cursor: pointer;
-    transition: opacity 0.15s;
+    text-align: left;
+    color: var(--text);
+    transition: all .15s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .test-card:active { opacity: 0.7; }
-  .test-book-name { font-size: 13px; color: var(--hint); margin-bottom: 4px; }
-  .test-question { font-size: 15px; font-weight: 500; margin-bottom: 10px; }
-  .test-meta { display: flex; gap: 8px; }
-  .test-badge {
-    font-size: 11px; font-weight: 600; padding: 3px 8px;
-    border-radius: 6px; background: rgba(255,255,255,0.07); color: var(--hint);
-  }
-  .test-badge.new { background: rgba(10,132,255,0.15); color: var(--accent); }
-  .test-badge.done { background: rgba(48,209,88,0.15); color: var(--green); }
+  .test-option:active { opacity: .75; }
+  .test-option.correct { border-color: var(--green); background: rgba(48,209,88,.12); }
+  .test-option.wrong   { border-color: #ff453a;      background: rgba(255,69,58,.12); }
+  .test-option.disabled { cursor: default; }
 
-  /* ── EMPTY STATE ── */
-  .empty {
-    text-align: center; padding: 60px 20px;
-    color: var(--hint); font-size: 15px; line-height: 1.5;
-  }
-  .empty svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.3; }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
 </style>
 </head>
 <body>
+<div id="app">
 
-<!-- HEADER -->
-<div class="header">
-  <h1>📚 BookBot</h1>
-  <span id="header-sub">Мои книги</span>
-</div>
-
-<!-- SCREEN: Книги -->
-<div class="screen active" id="screen-books">
-  <div id="books-list"></div>
-</div>
-
-<!-- SCREEN: Тесты -->
-<div class="screen" id="screen-tests">
-  <div class="section-label">Активные</div>
-  <div id="tests-list"></div>
-</div>
-
-<!-- CHAPTERS OVERLAY -->
-<div id="chapters-view">
-  <div class="chapters-header">
-    <button class="back-btn" onclick="closeChapters()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      Назад
-    </button>
-    <div class="chapters-title" id="chapters-title"></div>
+  <!-- Книги -->
+  <div id="screen-books" class="screen active">
+    <div class="section-title">📚 Мои книги</div>
+    <div id="books-list"></div>
   </div>
-  <div id="chapters-list"></div>
-</div>
 
-<!-- TAB BAR -->
-<nav class="tab-bar">
-  <button class="tab-btn active" id="tab-books" onclick="switchTab('books')">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14zm2.5-1H18v-1H6.5a.5.5 0 0 0 0 1z"/></svg>
-    Книги
-  </button>
-  <button class="tab-btn" id="tab-tests" onclick="switchTab('tests')">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zM5 3H3v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3h-2v16H5V3z"/></svg>
-    Тесты
-  </button>
-</nav>
+  <!-- Тесты -->
+  <div id="screen-tests" class="screen">
+    <div class="section-title">✏️ Тесты</div>
+    <div id="tests-list"></div>
+  </div>
+
+  <!-- Навигация -->
+  <nav>
+    <button class="nav-btn active" id="nav-books" onclick="showTab('books')">
+      <svg viewBox="0 0 24 24"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM7 12h10v1.5H7V12zm0 3h10v1.5H7V15zm0 3h7v1.5H7V18z"/></svg>
+      Книги
+    </button>
+    <button class="nav-btn" id="nav-tests" onclick="showTab('tests')">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9l2 2 4-4"/></svg>
+      Тесты
+    </button>
+  </nav>
+
+  <!-- Overlay: Главы -->
+  <div id="view-chapters">
+    <div class="chapters-header">
+      <button class="btn-back" onclick="closeChapters()">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        Назад
+      </button>
+      <span class="chapters-book-title" id="chapters-title"></span>
+    </div>
+    <div class="chapters-list" id="chapters-list"></div>
+  </div>
+
+</div>
 
 <script>
-// ── Telegram Web App init ──
-const tg = window.Telegram?.WebApp;
-if (tg) { tg.ready(); tg.expand(); }
-
-// ── Mock data ──
+// ── Mock data ──────────────────────────────────────────
 const books = [
   {
     id: 1,
@@ -244,7 +359,7 @@ const books = [
     reading_progress: 60,
     test_progress: 30,
     url: "https://books.google.com/books?id=XfFvDwAAQBAJ",
-    chapters: ["Введение. Удивительная сила атомных привычек", "Глава 1. Удивительная сила маленьких изменений", "Глава 2. Как ваши привычки формируют вашу идентичность", "Глава 3. Как построить лучшие привычки за 4 шага", "Глава 4. Человек, который не видит леса за деревьями", "Глава 5. Лучший способ запустить новую привычку", "Глава 6. Мотивация переоценена", "Глава 7. Секрет самоконтроля"]
+    chapters: ["Удивительная сила маленьких привычек","Как ваши привычки формируют вашу идентичность","Как построить лучшие привычки за 4 простых шага","Человек, выигравший чемпионат мира по велоспорту","Лучший способ начать новую привычку","Мотивация переоценена: среда часто важнее"]
   },
   {
     id: 2,
@@ -252,85 +367,99 @@ const books = [
     author: "Даниэль Канеман",
     reading_progress: 20,
     test_progress: 0,
-    url: "https://books.google.com/books?id=SHnBnAAACAAJ",
-    chapters: ["Введение", "Глава 1. Действующие лица", "Глава 2. Внимание и усилие", "Глава 3. Ленивый контролёр", "Глава 4. Ассоциативная машина", "Глава 5. Когнитивная лёгкость"]
+    url: "https://books.google.com/books?id=TA7Q_ZQua0gC",
+    chapters: ["Действующие лица истории","Внимание и усилие","Ленивый контролёр","Ассоциативная машина","Когнитивная лёгкость","Нормы, сюрпризы и причины"]
   },
   {
     id: 3,
     title: "Sapiens: Краткая история человечества",
     author: "Юваль Ной Харари",
-    reading_progress: 85,
-    test_progress: 75,
-    url: "https://books.google.com/books?id=1EiJAwAAQBAJ",
-    chapters: ["Часть 1. Когнитивная революция", "Часть 2. Сельскохозяйственная революция", "Часть 3. Объединение человечества", "Часть 4. Научная революция"]
+    reading_progress: 0,
+    test_progress: 0,
+    url: "https://books.google.com/books?id=FmyBAwAAQBAJ",
+    chapters: ["Незначительное животное","Древо познания","День, когда Адам и Ева развелись","История потопа","История — вечный двигатель","Строим пирамиды"]
   }
 ];
 
 const tests = [
-  { id: 1, book_id: 1, question: "Как называется концепция 1% улучшений каждый день?", status: "new" },
-  { id: 2, book_id: 1, question: "Что такое «стопинг-поинт» по Клиру?", status: "new" },
-  { id: 3, book_id: 2, question: "Как Канеман называет быстрое мышление?", status: "done" },
-  { id: 4, book_id: 3, question: "Какая революция произошла ~70 000 лет назад?", status: "new" },
+  {
+    book_id: 1,
+    question: "Какой закон описывает Джеймс Клир как ключевой для формирования привычки?",
+    options: ["Закон 1%", "Закон сложных процентов", "Закон наименьшего действия", "Закон Паркинсона"],
+    correct: 0
+  },
+  {
+    book_id: 1,
+    question: "Сколько шагов в системе четырёх законов изменения поведения?",
+    options: ["2", "3", "4", "5"],
+    correct: 2
+  },
+  {
+    book_id: 2,
+    question: "Как Канеман называет интуитивное, быстрое мышление?",
+    options: ["Система А", "Система 1", "Бета-режим", "Автопилот"],
+    correct: 1
+  }
 ];
 
-// ── Render books ──
+// ── Tabs ──────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+
+// ── Render books ──────────────────────────────────────
 function renderBooks() {
   const container = document.getElementById('books-list');
   if (!books.length) {
-    container.innerHTML = `<div class="empty">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/></svg>
-      <div>Книг пока нет.<br>Добавь через бота 👇</div>
-    </div>`;
+    container.innerHTML = '<div class="tests-empty"><p>Ещё нет книг.<br>Добавь первую через бота!</p></div>';
     return;
   }
   container.innerHTML = books.map(b => `
     <div class="book-card">
-      <div class="book-title">${b.title}</div>
-      <div class="book-author">${b.author}</div>
-
-      <div class="progress-row">
-        <div class="progress-label"><span>Чтение</span><b>${b.reading_progress}%</b></div>
-        <div class="progress-track"><div class="progress-fill read" style="width:${b.reading_progress}%"></div></div>
+      <div class="book-header">
+        <div class="book-meta">
+          <div class="book-title">${esc(b.title)}</div>
+          <div class="book-author">${esc(b.author)}</div>
+        </div>
+        <div class="book-arrow">
+          <svg viewBox="0 0 24 24"><path d="M9.29 6.71a1 1 0 0 0 0 1.41L13.17 12l-3.88 3.88a1 1 0 1 0 1.41 1.41l4.59-4.59a1 1 0 0 0 0-1.41L10.7 6.7a1 1 0 0 0-1.41.01z"/></svg>
+        </div>
       </div>
-      <div class="progress-row">
-        <div class="progress-label"><span>Тесты</span><b>${b.test_progress}%</b></div>
-        <div class="progress-track"><div class="progress-fill test" style="width:${b.test_progress}%"></div></div>
+      <div class="progress-group">
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>📖 Прогресс чтения</span>
+            <span>${b.reading_progress}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill reading" style="width:${b.reading_progress}%"></div>
+          </div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>✏️ Прогресс тестов</span>
+            <span>${b.test_progress}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill tests" style="width:${b.test_progress}%"></div>
+          </div>
+        </div>
       </div>
-
-      <div class="card-footer">
-        <a class="source-link" href="${b.url}" target="_blank" onclick="event.stopPropagation()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      <div class="book-footer">
+        <a class="book-link" href="${esc(b.url)}" target="_blank" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8l-3.528-3.536-5.022 5.022-1.414-1.414 5.022-5.022L13 3h8z"/></svg>
           Источник
         </a>
-        <button class="chapters-btn" onclick="openChapters(${b.id})">Главы →</button>
+        <button class="btn-chapters" onclick="openChapters(${b.id}); event.stopPropagation()">Главы</button>
       </div>
     </div>
   `).join('');
 }
 
-// ── Render tests ──
-function renderTests() {
-  const container = document.getElementById('tests-list');
-  if (!tests.length) {
-    container.innerHTML = `<div class="empty">Тестов пока нет</div>`;
-    return;
-  }
-  container.innerHTML = tests.map(t => {
-    const book = books.find(b => b.id === t.book_id);
-    const statusLabel = t.status === 'done' ? 'Пройден' : 'Новый';
-    const statusClass = t.status === 'done' ? 'done' : 'new';
-    return `
-    <div class="test-card">
-      <div class="test-book-name">${book ? book.title : '—'}</div>
-      <div class="test-question">${t.question}</div>
-      <div class="test-meta">
-        <span class="test-badge ${statusClass}">${statusLabel}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── Chapters ──
+// ── Chapters ──────────────────────────────────────────
 function openChapters(bookId) {
   const book = books.find(b => b.id === bookId);
   if (!book) return;
@@ -338,33 +467,78 @@ function openChapters(bookId) {
   document.getElementById('chapters-list').innerHTML = book.chapters.map((ch, i) => `
     <div class="chapter-item">
       <div class="chapter-num">${i + 1}</div>
-      <div class="chapter-name">${ch}</div>
+      <div class="chapter-name">${esc(ch)}</div>
     </div>
   `).join('');
-  document.getElementById('chapters-view').classList.add('open');
-  if (tg) tg.BackButton.show();
+  const view = document.getElementById('view-chapters');
+  view.classList.add('open');
+  if (window.Telegram?.WebApp) Telegram.WebApp.BackButton.show();
 }
 
 function closeChapters() {
-  document.getElementById('chapters-view').classList.remove('open');
-  if (tg) tg.BackButton.hide();
+  document.getElementById('view-chapters').classList.remove('open');
+  if (window.Telegram?.WebApp) Telegram.WebApp.BackButton.hide();
 }
 
-if (tg) {
-  tg.BackButton.onClick(() => closeChapters());
+// ── Render tests ──────────────────────────────────────
+function renderTests() {
+  const container = document.getElementById('tests-list');
+  const pending = tests.filter(t => {
+    const book = books.find(b => b.id === t.book_id);
+    return book && book.reading_progress > 0;
+  });
+
+  if (!pending.length) {
+    container.innerHTML = `
+      <div class="tests-empty">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
+        <p>Тесты появятся после начала чтения</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = pending.map((t, idx) => {
+    const book = books.find(b => b.id === t.book_id);
+    return `
+      <div class="test-card" id="test-${idx}">
+        <div class="test-book">📚 ${esc(book.title)}</div>
+        <div class="test-question">${esc(t.question)}</div>
+        <div class="test-options">
+          ${t.options.map((opt, oi) => `
+            <button class="test-option" onclick="answerTest(${idx}, ${oi}, ${t.correct})">${esc(opt)}</button>
+          `).join('')}
+        </div>
+      </div>`;
+  }).join('');
 }
 
-// ── Tab switching ──
-function switchTab(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-  const labels = { books: 'Мои книги', tests: 'Тесты' };
-  document.getElementById('header-sub').textContent = labels[name] || '';
+function answerTest(testIdx, chosen, correct) {
+  const card = document.getElementById('test-' + testIdx);
+  const btns = card.querySelectorAll('.test-option');
+  btns.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== correct) btn.classList.add('wrong');
+  });
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.HapticFeedback.notificationOccurred(chosen === correct ? 'success' : 'error');
+  }
 }
 
-// ── Init ──
+// ── Utils ─────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Telegram Web App init ─────────────────────────────
+if (window.Telegram?.WebApp) {
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+  Telegram.WebApp.BackButton.onClick(closeChapters);
+}
+
+// ── Init ──────────────────────────────────────────────
 renderBooks();
 renderTests();
 </script>
