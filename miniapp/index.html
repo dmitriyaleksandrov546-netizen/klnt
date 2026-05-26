@@ -103,16 +103,32 @@ nav button.active{color:var(--btn)}
 .test-badge.r-know{background:rgba(48,209,88,.18);color:#30d158}
 .test-badge.r-partial{background:rgba(255,214,10,.18);color:#ffd60a}
 .test-badge.r-dont_know{background:rgba(255,69,58,.18);color:var(--danger)}
-.test-a-toggle{font-size:13px;color:var(--link);cursor:pointer;padding:6px 0;background:none;border:none}
-.test-a{font-size:14px;line-height:1.5;color:var(--hint);margin-top:6px;display:none;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
-.test-a.shown{display:block}
-.test-rate{display:none;margin-top:10px;gap:6px;flex-wrap:wrap}
-.test-a.shown ~ .test-rate{display:flex}
+.test-answer-input{width:100%;min-height:80px;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;font-family:inherit;line-height:1.45;resize:vertical;outline:none;margin-top:6px}
+.test-answer-input:focus{border-color:var(--btn)}
+.test-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.test-actions button{background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:.15s}
+.test-actions button.primary{background:var(--btn);color:var(--btn-text);border-color:var(--btn)}
+.test-actions button.danger{background:rgba(255,69,58,.18);color:var(--danger);border-color:var(--danger)}
+.test-actions button:disabled{opacity:.5;cursor:wait}
+.test-actions .rec-btn.recording{background:rgba(255,69,58,.22);border-color:var(--danger);color:var(--danger);animation:pulse 1.2s infinite}
+.test-actions .link{background:none;border:none;color:var(--link);padding:8px 4px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.test-result{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);display:none}
+.test-result.shown{display:block}
+.test-verdict{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:14px;font-weight:600}
+.test-verdict.r-know{color:#30d158}
+.test-verdict.r-partial{color:#ffd60a}
+.test-verdict.r-dont_know{color:var(--danger)}
+.test-feedback{font-size:13px;line-height:1.45;color:var(--text);margin-bottom:8px}
+.test-reference{font-size:13px;line-height:1.45;color:var(--hint);background:rgba(255,255,255,.03);padding:8px 10px;border-radius:8px;margin-bottom:10px}
+.test-reference b{color:var(--text);font-weight:600;display:block;margin-bottom:3px;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.test-rate{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .test-rate button{flex:1;min-width:90px;background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 10px;font-size:13px;font-weight:500;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:5px}
 .test-rate button:hover{background:rgba(255,255,255,.1)}
 .test-rate button.active.r-know{background:rgba(48,209,88,.22);border-color:#30d158;color:#30d158}
 .test-rate button.active.r-partial{background:rgba(255,214,10,.22);border-color:#ffd60a;color:#ffd60a}
 .test-rate button.active.r-dont_know{background:rgba(255,69,58,.22);border-color:var(--danger);color:var(--danger)}
+.test-rate-label{font-size:11px;color:var(--hint);margin-top:8px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
 .chapter-tests-meta{font-size:11px;color:var(--hint);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
 .chapter-tests-meta span.has{color:var(--text)}
 .chapter-tests-meta .pip{display:inline-flex;align-items:center;gap:3px}
@@ -524,12 +540,22 @@ function testCardHtml(t, i) {
         ${badge}
       </div>
       <div class="test-q">${escapeHtml(t.question)}</div>
-      <button class="test-a-toggle" onclick="toggleAnswer(this)">Показать ответ ↓</button>
-      <div class="test-a">${escapeHtml(t.answer || '')}</div>
-      <div class="test-rate">
-        <button class="${lr==='know'?'active r-know':''}" onclick="rateTest(${t.id},'know')">🟢 Знал</button>
-        <button class="${lr==='partial'?'active r-partial':''}" onclick="rateTest(${t.id},'partial')">🟡 Частично</button>
-        <button class="${lr==='dont_know'?'active r-dont_know':''}" onclick="rateTest(${t.id},'dont_know')">🔴 Не знал</button>
+      <textarea class="test-answer-input" placeholder="Твой ответ — текстом или надиктуй голосом"></textarea>
+      <div class="test-actions">
+        <button class="rec-btn" onclick="toggleRecord(this, ${t.id})">🎙 Голосом</button>
+        <button class="primary" onclick="checkAnswer(${t.id})">Проверить</button>
+        <button class="link" onclick="showAnswerWithoutCheck(${t.id})">Показать ответ</button>
+      </div>
+      <div class="test-result">
+        <div class="test-verdict" style="display:none"><span class="verdict-icon"></span><span class="verdict-text"></span></div>
+        <div class="test-feedback" style="display:none"></div>
+        <div class="test-reference"><b>Эталонный ответ</b><span class="ref-text"></span></div>
+        <div class="test-rate-label">Оценить себя</div>
+        <div class="test-rate">
+          <button class="${lr==='know'?'active r-know':''}" onclick="rateTest(${t.id},'know')">🟢 Знал</button>
+          <button class="${lr==='partial'?'active r-partial':''}" onclick="rateTest(${t.id},'partial')">🟡 Частично</button>
+          <button class="${lr==='dont_know'?'active r-dont_know':''}" onclick="rateTest(${t.id},'dont_know')">🔴 Не знал</button>
+        </div>
       </div>
     </div>`;
 }
@@ -555,10 +581,110 @@ async function openTests(chId) {
   }
 }
 
-function toggleAnswer(btn) {
-  const a = btn.nextElementSibling;
-  a.classList.toggle('shown');
-  btn.textContent = a.classList.contains('shown') ? 'Скрыть ответ ↑' : 'Показать ответ ↓';
+async function checkAnswer(testId) {
+  const card = document.querySelector(`.test-item[data-id="${testId}"]`);
+  if (!card) return;
+  const ta = card.querySelector('.test-answer-input');
+  const text = (ta.value || '').trim();
+  if (!text) { toast('Введи ответ или надиктуй голосом', true); ta.focus(); return; }
+  const btn = card.querySelector('.test-actions .primary');
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Проверяю…';
+  try {
+    const r = await api('POST', `/tests/${testId}/check`, { answer: text });
+    fillResult(card, { verdict: r.verdict, feedback: r.feedback, reference: r.reference });
+  } catch (e) {
+    toast('Ошибка: ' + e.message, true);
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+function showAnswerWithoutCheck(testId) {
+  const card = document.querySelector(`.test-item[data-id="${testId}"]`);
+  if (!card) return;
+  const t = (state.currentTests || []).find(x => x.id === testId);
+  fillResult(card, { reference: t ? (t.answer || '') : '', verdict: null, feedback: '' });
+}
+
+function fillResult(card, r) {
+  const res = card.querySelector('.test-result');
+  res.classList.add('shown');
+  res.querySelector('.ref-text').textContent = r.reference || '(эталон не указан)';
+  const verdictEl = res.querySelector('.test-verdict');
+  const feedbackEl = res.querySelector('.test-feedback');
+  if (r.verdict) {
+    verdictEl.className = 'test-verdict r-' + r.verdict;
+    verdictEl.querySelector('.verdict-icon').textContent = r.verdict === 'know' ? '🟢' : r.verdict === 'partial' ? '🟡' : '🔴';
+    verdictEl.querySelector('.verdict-text').textContent = 'Claude: ' + RESULT_LABEL[r.verdict];
+    verdictEl.style.display = '';
+    feedbackEl.textContent = r.feedback || '';
+    feedbackEl.style.display = r.feedback ? '' : 'none';
+  } else {
+    verdictEl.style.display = 'none';
+    feedbackEl.style.display = 'none';
+  }
+}
+
+// ─── voice recording ───
+let _recState = { recorder: null, stream: null, btn: null, mimeType: '' };
+
+async function toggleRecord(btn, testId) {
+  if (_recState.recorder && _recState.recorder.state === 'recording') {
+    _recState.recorder.stop();
+    return;
+  }
+  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+    toast('Браузер не поддерживает запись', true);
+    return;
+  }
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    toast('Нет доступа к микрофону', true);
+    return;
+  }
+  let mimeType = '';
+  for (const m of ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus']) {
+    if (MediaRecorder.isTypeSupported(m)) { mimeType = m; break; }
+  }
+  const chunks = [];
+  const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+  _recState = { recorder, stream, btn, mimeType };
+  recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  recorder.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    btn.classList.remove('recording');
+    btn.disabled = true;
+    btn.textContent = '⏳ Распознаю…';
+    try {
+      const blob = new Blob(chunks, { type: mimeType || 'audio/webm' });
+      const ext = (mimeType.includes('mp4')) ? 'm4a' : (mimeType.includes('ogg')) ? 'ogg' : 'webm';
+      const fd = new FormData();
+      fd.append('audio', blob, 'voice.' + ext);
+      const r = await fetch(API_BASE + '/voice-transcribe', {
+        method: 'POST',
+        headers: { 'X-Telegram-Init-Data': tg?.initData || '' },
+        body: fd,
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+      const card = btn.closest('.test-item');
+      const ta = card.querySelector('.test-answer-input');
+      ta.value = (ta.value ? ta.value.trimEnd() + ' ' : '') + (data.transcript || '');
+      ta.focus();
+    } catch (e) {
+      toast('Ошибка распознавания: ' + e.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🎙 Голосом';
+      _recState = { recorder: null, stream: null, btn: null, mimeType: '' };
+    }
+  };
+  recorder.start();
+  btn.classList.add('recording');
+  btn.textContent = '⏹ Стоп';
 }
 
 async function rateTest(testId, result) {
