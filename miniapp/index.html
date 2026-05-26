@@ -94,11 +94,30 @@ nav button.active{color:var(--btn)}
 .note-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:10px}
 .note-footer button{flex:1;padding:12px;border-radius:10px;border:none;font-size:15px;font-weight:500;cursor:pointer}
 .test-item{background:var(--bg2);border-radius:12px;padding:14px;margin-bottom:10px}
+.test-item.r-know{box-shadow:inset 3px 0 0 #30d158}
+.test-item.r-partial{box-shadow:inset 3px 0 0 #ffd60a}
+.test-item.r-dont_know{box-shadow:inset 3px 0 0 var(--danger)}
 .test-q{font-size:15px;font-weight:500;margin-bottom:8px;line-height:1.4}
-.test-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--hint);margin-bottom:8px}
+.test-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:var(--hint);margin-bottom:8px}
+.test-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,.06)}
+.test-badge.r-know{background:rgba(48,209,88,.18);color:#30d158}
+.test-badge.r-partial{background:rgba(255,214,10,.18);color:#ffd60a}
+.test-badge.r-dont_know{background:rgba(255,69,58,.18);color:var(--danger)}
 .test-a-toggle{font-size:13px;color:var(--link);cursor:pointer;padding:6px 0;background:none;border:none}
 .test-a{font-size:14px;line-height:1.5;color:var(--hint);margin-top:6px;display:none;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
 .test-a.shown{display:block}
+.test-rate{display:none;margin-top:10px;gap:6px;flex-wrap:wrap}
+.test-a.shown ~ .test-rate{display:flex}
+.test-rate button{flex:1;min-width:90px;background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 10px;font-size:13px;font-weight:500;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.test-rate button:hover{background:rgba(255,255,255,.1)}
+.test-rate button.active.r-know{background:rgba(48,209,88,.22);border-color:#30d158;color:#30d158}
+.test-rate button.active.r-partial{background:rgba(255,214,10,.22);border-color:#ffd60a;color:#ffd60a}
+.test-rate button.active.r-dont_know{background:rgba(255,69,58,.22);border-color:var(--danger);color:var(--danger)}
+.chapter-tests-meta{font-size:11px;color:var(--hint);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.chapter-tests-meta span.has{color:var(--text)}
+.chapter-tests-meta .pip{display:inline-flex;align-items:center;gap:3px}
+.chapter-tests-meta .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.progress-fill.purple{background:#bf5af2}
 .toast{position:fixed;bottom:calc(var(--nav-h) + 80px);left:50%;transform:translateX(-50%);background:var(--bg2);padding:10px 16px;border-radius:10px;font-size:13px;z-index:200;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 14px rgba(0,0,0,.4);display:none}
 .toast.show{display:block}
 .toast.error{border-color:var(--danger);color:var(--danger)}
@@ -228,7 +247,7 @@ async function api(method, path, body) {
   return data;
 }
 
-let state = { books: [], currentBookId: null, currentBook: null, currentChapters: [], currentChapterId: null, currentChapter: null };
+let state = { books: [], currentBookId: null, currentBook: null, currentChapters: [], currentChapterId: null, currentChapter: null, currentTests: [] };
 let editMode = false;
 let selected = new Set();
 
@@ -270,8 +289,11 @@ function renderBooks() {
     const total = b.total_chapters || 0;
     const read = b.read_count || 0;
     const notes = b.notes_count || 0;
+    const tTotal = b.tests_total || 0;
+    const tKnown = b.tests_known || 0;
     const readPct = total ? Math.round(read/total*100) : 0;
     const notesPct = total ? Math.round(notes/total*100) : 0;
+    const knownPct = tTotal ? Math.round(tKnown/tTotal*100) : 0;
     const isSel = selected.has(b.id);
     return `
       <div class="card ${isSel ? 'selected' : ''}" data-id="${b.id}">
@@ -288,6 +310,11 @@ function renderBooks() {
               <div class="progress-label"><span>Конспектов</span><span>${notes}/${total} · ${notesPct}%</span></div>
               <div class="progress-bar"><div class="progress-fill green" style="width:${notesPct}%"></div></div>
             </div>
+            ${tTotal ? `
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Знаю</span><span>${tKnown}/${tTotal} · ${knownPct}%</span></div>
+              <div class="progress-bar"><div class="progress-fill purple" style="width:${knownPct}%"></div></div>
+            </div>` : ''}
             <div class="card-actions">
               <button class="link-btn" onclick="openExternal(${b.id})">🔍 Найти в интернете</button>
               <button class="open-btn" onclick="openChapters(${b.id})">Главы</button>
@@ -406,15 +433,31 @@ function closeChapters() {
 
 function renderChapters() {
   const el = document.getElementById('chapters-list');
-  el.innerHTML = state.currentChapters.map(c => `
+  el.innerHTML = state.currentChapters.map(c => {
+    const tt = c.tests_total || 0;
+    const tk = c.tests_known || 0;
+    const tp = c.tests_partial || 0;
+    const td = c.tests_dont_know || 0;
+    const meta = tt ? `
+      <div class="chapter-tests-meta">
+        ${tk ? `<span class="pip has"><span class="dot" style="background:#30d158"></span>${tk}</span>` : ''}
+        ${tp ? `<span class="pip has"><span class="dot" style="background:#ffd60a"></span>${tp}</span>` : ''}
+        ${td ? `<span class="pip has"><span class="dot" style="background:var(--danger)"></span>${td}</span>` : ''}
+        <span class="pip">${tk + tp + td}/${tt}</span>
+      </div>` : '';
+    return `
     <div class="chapter-item">
       <div class="chapter-check ${c.is_read ? 'done' : ''}" onclick="toggleRead(${c.id}, ${c.is_read ? 0 : 1})"></div>
-      <div class="chapter-title ${c.is_read ? 'done' : ''}"><b>${c.chapter_num}.</b> ${escapeHtml(c.title)}</div>
+      <div class="chapter-title-wrap" style="flex:1;min-width:0">
+        <div class="chapter-title ${c.is_read ? 'done' : ''}"><b>${c.chapter_num}.</b> ${escapeHtml(c.title)}</div>
+        ${meta}
+      </div>
       <div class="chapter-btns">
         <button class="${c.has_note ? 'has-note' : ''}" onclick="openNote(${c.id})">📝</button>
         <button onclick="openTests(${c.id})">✅</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 async function toggleRead(chId, newVal) {
@@ -434,17 +477,9 @@ async function openNote(chId) {
   state.currentChapter = c;
   document.getElementById('note-title').textContent = c.title;
   document.getElementById('note-book').textContent = state.currentBook?.title || '';
-  document.getElementById('note-text').value = '⏳';
+  // list_chapters теперь возвращает user_note напрямую — не делаем второй запрос.
+  document.getElementById('note-text').value = c.user_note || '';
   document.getElementById('note-screen').classList.add('active');
-  // Загружаем полный note (в chapters list только has_note флаг)
-  try {
-    const r = await api('GET', `/books/${state.currentBookId}/chapters`);
-    const full = (r.chapters || []).find(x => x.id === chId);
-    document.getElementById('note-text').value = full?.user_note || '';
-  } catch (e) {
-    document.getElementById('note-text').value = '';
-    toast('Не загрузил конспект: ' + e.message, true);
-  }
 }
 
 function closeNote() {
@@ -477,6 +512,28 @@ function deleteNote() {
 document.getElementById('note-text').addEventListener('input', () => saveCurrentNote(false));
 
 // ───── tests ─────
+const RESULT_LABEL = { know: '🟢 Знал', partial: '🟡 Частично', dont_know: '🔴 Не знал' };
+
+function testCardHtml(t, i) {
+  const lr = t.last_result || '';
+  const badge = lr ? `<span class="test-badge r-${lr}">${RESULT_LABEL[lr]}</span>` : '';
+  return `
+    <div class="test-item ${lr ? 'r-'+lr : ''}" data-id="${t.id}">
+      <div class="test-meta">
+        <span>Вопрос ${i+1}${t.difficulty ? ' · '+escapeHtml(t.difficulty) : ''}</span>
+        ${badge}
+      </div>
+      <div class="test-q">${escapeHtml(t.question)}</div>
+      <button class="test-a-toggle" onclick="toggleAnswer(this)">Показать ответ ↓</button>
+      <div class="test-a">${escapeHtml(t.answer || '')}</div>
+      <div class="test-rate">
+        <button class="${lr==='know'?'active r-know':''}" onclick="rateTest(${t.id},'know')">🟢 Знал</button>
+        <button class="${lr==='partial'?'active r-partial':''}" onclick="rateTest(${t.id},'partial')">🟡 Частично</button>
+        <button class="${lr==='dont_know'?'active r-dont_know':''}" onclick="rateTest(${t.id},'dont_know')">🔴 Не знал</button>
+      </div>
+    </div>`;
+}
+
 async function openTests(chId) {
   state.currentChapterId = chId;
   const c = state.currentChapters.find(x => x.id === chId);
@@ -491,13 +548,8 @@ async function openTests(chId) {
       document.getElementById('tests-list').innerHTML = '<div class="empty">Тестов нет. Добавь книгу голосом — бот сгенерирует.</div>';
       return;
     }
-    document.getElementById('tests-list').innerHTML = tests.map((t, i) => `
-      <div class="test-item">
-        <div class="test-meta"><span>Вопрос ${i+1}</span><span>${escapeHtml(t.difficulty || '')}</span></div>
-        <div class="test-q">${escapeHtml(t.question)}</div>
-        <button class="test-a-toggle" onclick="toggleAnswer(this)">Показать ответ ↓</button>
-        <div class="test-a">${escapeHtml(t.answer || '')}</div>
-      </div>`).join('');
+    state.currentTests = tests;
+    document.getElementById('tests-list').innerHTML = tests.map((t, i) => testCardHtml(t, i)).join('');
   } catch (e) {
     document.getElementById('tests-list').innerHTML = '<div class="loading">⚠ ' + e.message + '</div>';
   }
@@ -509,8 +561,69 @@ function toggleAnswer(btn) {
   btn.textContent = a.classList.contains('shown') ? 'Скрыть ответ ↑' : 'Показать ответ ↓';
 }
 
+async function rateTest(testId, result) {
+  const card = document.querySelector(`.test-item[data-id="${testId}"]`);
+  if (!card) return;
+  // Локально знаем предыдущий результат — обновим счётчики главы без запроса.
+  const t = (state.currentTests || []).find(x => x.id === testId);
+  const oldResult = t ? t.last_result : null;
+  applyTestResult(card, result);
+  if (t) { t.last_result = result; t.last_attempt_at = new Date().toISOString(); }
+  bumpLocalChapterCount(state.currentChapterId, oldResult, result);
+  try {
+    await api('POST', `/tests/${testId}/attempt`, { result });
+  } catch (e) {
+    toast('Ошибка: ' + e.message, true);
+    // Откат
+    if (t) t.last_result = oldResult;
+    bumpLocalChapterCount(state.currentChapterId, result, oldResult);
+    applyTestResult(card, oldResult);
+  }
+}
+
+function bumpLocalChapterCount(chapterId, oldResult, newResult) {
+  if (!chapterId) return;
+  const c = (state.currentChapters || []).find(x => x.id === chapterId);
+  if (!c) return;
+  const buckets = { know: 'tests_known', partial: 'tests_partial', dont_know: 'tests_dont_know' };
+  if (oldResult && buckets[oldResult]) {
+    c[buckets[oldResult]] = Math.max(0, (c[buckets[oldResult]] || 0) - 1);
+  }
+  if (newResult && buckets[newResult]) {
+    c[buckets[newResult]] = (c[buckets[newResult]] || 0) + 1;
+  }
+}
+
+function applyTestResult(card, result) {
+  card.classList.remove('r-know', 'r-partial', 'r-dont_know');
+  if (result) card.classList.add('r-' + result);
+  // bage
+  const meta = card.querySelector('.test-meta');
+  let badge = meta.querySelector('.test-badge');
+  if (!result) { if (badge) badge.remove(); }
+  else {
+    if (!badge) {
+      badge = document.createElement('span');
+      meta.appendChild(badge);
+    }
+    badge.className = 'test-badge r-' + result;
+    badge.textContent = RESULT_LABEL[result];
+  }
+  // кнопки rate
+  card.querySelectorAll('.test-rate button').forEach(b => {
+    b.classList.remove('active', 'r-know', 'r-partial', 'r-dont_know');
+  });
+  if (result) {
+    const idx = result === 'know' ? 0 : result === 'partial' ? 1 : 2;
+    const btn = card.querySelectorAll('.test-rate button')[idx];
+    if (btn) btn.classList.add('active', 'r-' + result);
+  }
+}
+
 function closeTests() {
   document.getElementById('tests-screen').classList.remove('active');
+  // При возврате к экрану глав — перерисовать с актуальными счётчиками.
+  if (state.currentBookId) renderChapters();
 }
 
 // ───── init ─────
