@@ -104,6 +104,7 @@ nav button.active{color:var(--btn)}
 .test-badge.r-partial{background:rgba(255,214,10,.18);color:#ffd60a}
 .test-badge.r-dont_know{background:rgba(255,69,58,.18);color:var(--danger)}
 .test-mic-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:10px;background:var(--btn);color:var(--btn-text);border:none;border-radius:12px;padding:14px 16px;font-size:15px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit}
+.note-mic-btn{margin-top:0;margin-bottom:12px;flex-shrink:0}
 .test-mic-btn:disabled{opacity:.75;cursor:wait}
 .test-mic-btn.recording{background:var(--danger);animation:micpulse 1.4s infinite}
 .test-mic-btn .mic-dot{display:none;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:dotpulse 1.2s infinite}
@@ -225,7 +226,13 @@ nav button.active{color:var(--btn)}
     </div>
   </div>
   <div class="note-body">
-    <textarea id="note-text" placeholder="Тезисы по главе. Сохранится автоматически.&#10;&#10;💡 Можно надиктовать голосом в чат: «Глава 3 [название книги], тезисы: …»"></textarea>
+    <button class="test-mic-btn note-mic-btn" onclick="toggleRecordNote(this)">
+      <span class="mic-icon">🎙</span>
+      <span class="mic-dot"></span>
+      <span class="mic-label">Надиктовать тезисы</span>
+      <span class="mic-timer"></span>
+    </button>
+    <textarea id="note-text" placeholder="Тезисы по главе. Сохранится автоматически."></textarea>
   </div>
   <div class="note-footer">
     <button class="btn-secondary" onclick="deleteNote()">Очистить</button>
@@ -675,7 +682,7 @@ function toggleManualInput(linkBtn, testId) {
   card.querySelector('.test-answer-input').focus();
 }
 
-async function toggleRecord(btn, testId) {
+async function _startRecording(btn, onTranscribed) {
   if (_recState.recorder && _recState.recorder.state === 'recording') {
     _recState.recorder.stop();
     return;
@@ -722,24 +729,40 @@ async function toggleRecord(btn, testId) {
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
-      const card = btn.closest('.test-item');
-      const ta = card.querySelector('.test-answer-input');
-      const wrap = card.querySelector('.test-answer-wrap');
-      const manualToggle = card.querySelector('.test-manual-toggle');
       const transcript = (data.transcript || '').trim();
-      ta.value = (ta.value ? ta.value.trimEnd() + ' ' : '') + transcript;
-      wrap.classList.add('shown');
-      if (manualToggle) manualToggle.style.display = 'none';
+      if (onTranscribed) onTranscribed(transcript);
     } catch (e) {
       toast('Ошибка распознавания: ' + e.message, true);
     } finally {
       btn.disabled = false;
-      _setMicState(btn, 'idle', 'Перезаписать');
+      _setMicState(btn, 'idle', btn.dataset.idleLabel || 'Записать голосом');
       _recState = { recorder: null, stream: null, btn: null, mimeType: '', timerId: null, startedAt: 0 };
     }
   };
   recorder.start();
   _setMicState(btn, 'recording', 'Остановить запись');
+}
+
+async function toggleRecord(btn, testId) {
+  await _startRecording(btn, transcript => {
+    const card = btn.closest('.test-item');
+    const ta = card.querySelector('.test-answer-input');
+    const wrap = card.querySelector('.test-answer-wrap');
+    const manualToggle = card.querySelector('.test-manual-toggle');
+    ta.value = (ta.value ? ta.value.trimEnd() + ' ' : '') + transcript;
+    wrap.classList.add('shown');
+    if (manualToggle) manualToggle.style.display = 'none';
+    btn.dataset.idleLabel = 'Записать ещё';
+  });
+}
+
+async function toggleRecordNote(btn) {
+  await _startRecording(btn, transcript => {
+    const ta = document.getElementById('note-text');
+    ta.value = (ta.value ? ta.value.trimEnd() + ' ' : '') + transcript;
+    ta.dispatchEvent(new Event('input'));
+    btn.dataset.idleLabel = 'Дописать голосом';
+  });
 }
 
 async function rateTest(testId, result) {
